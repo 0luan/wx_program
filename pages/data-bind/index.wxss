@@ -1,0 +1,114 @@
+.container {
+  width:100%;
+}
+
+
+#board {
+  position:relative;
+}
+
+#board-background {
+  padding:8vw;
+  display:flex;
+  flex-direction: column;
+  /*position:absolute;
+  left:0;
+  right:0;*/
+}
+
+.background-rows {
+  box-sizing:border-box;
+  border-top:1px black solid;
+  display:flex;
+  height:6vw;
+}
+
+.background-rows:last-child {
+  border-bottom:1px black solid;
+}
+
+.background-columns {
+  box-sizing:border-box;
+  border-left:1px black solid;
+  flex:1;
+}
+
+.background-columns:nth-child(14n) {
+  border-right:1px black solid;
+}
+
+#board-stone-container {
+  background:rgba(255,205,205,0.8);
+  z-index:100;
+  padding:5vw;
+  display:flex;
+  flex-direction: column;
+  position:absolute;
+  left:0;
+  right:0;
+  top:0;
+}
+
+.stone-rows {
+  display:flex;
+  height:6vw;
+}
+
+.stone-columns {
+  flex:1;
+  padding: 0.5vw;
+  max-width:5vw;
+}
+
+.stone {
+  width: 100%;
+  height: 100%;
+  border-radius:50%;
+  border: 1px solid black;
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.black_stone {
+  background: #000;
+  color: #fff;
+}
+
+.white_stone {
+  background: #fff;
+  color: #000;
+}
+
+.stone-text {
+  width:100%;
+  height:6vw;
+  line-height:6vw;
+  font-size:22rpx;
+  display:block;
+  text-align:center;
+}
+
+.hide-stone {
+  border: none;
+  background:transparent;
+}
+
+.hide-stone > .stone-text {
+  display:none;
+}
+
+.board-star {
+  background: "./star.png" center center no-repeat;
+}
+
+/* 控制区 */
+.control-btn {
+  display: inline-block;
+  width: 40rpx;
+  height: 40rpx;
+  font-size: 25rpx;
+  border: 1px solid black;
+  border-radius: 4rpx;
+  text-align: center;
+  margin-right: 20rpx;
+}

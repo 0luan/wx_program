@@ -1,28 +1,27 @@
 import {Board} from "../../renju/board.js"
+import {RenjuController} from "../../renju/controller.js"
+
+const NORMAL_MODE = 0; // 顺序落子
+const FREE_MODE = 1; // 自由摆局
 
 Page({
   /**
    * 页面的初始数据
    */
   data: {
-
+    mode: NORMAL_MODE,
+    color: 1, // 0-white, 1-black
   },
 
   b: Board(),
+  controller: RenjuController(),
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
     this.b.init("board");
-    this.b.addStone(1, 1, 1, 1);
-    this.b.addStone(1, 2, 0, 1);
-    this.b.addStone(4, 1, 1, 1);
-    this.b.addStone(4, 2, 0, 1);
-    this.b.addStone(4, 5, 1, 1);
-    this.b.addStone(4, 7, 0, 1);
-    this.b.addStone(2, 1, 1, 1);
-    this.b.addStone(4, 3, 1, 1);
+    this.controller.init(this.b);
   },
 
   /**
@@ -79,6 +78,21 @@ Page({
     var pt = this.b.pointToXY(e.detail.x, e.detail.y);
     console.log(pt);
     //this.b.addStone(pt.x, pt.y, 0, 'A');
-    this.b.removeStone(pt.x, pt.y);
-  }
+    this.b.selectPoint(pt.x, pt.y);
+  },
+
+  onConfirm: function() {
+    var pt = this.b.getSelectedPoint();
+    this.b.cancelSelect();
+    var stone = this.controller.getStone(pt.x, pt.y);
+    if (stone) {
+
+    } else {
+      this.controller.addStone(pt.x, pt.y, this.data.color);
+      if (this.data.color == 1) this.data.color = 0;
+      else this.data.color = 1;
+    }
+  
+  },
+
 })

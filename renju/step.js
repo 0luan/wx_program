@@ -5,6 +5,4 @@ export function step() {
   var comment; // 注释
 
   var next_step;
-
-  
 }

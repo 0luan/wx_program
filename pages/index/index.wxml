@@ -1,5 +1,29 @@
 <view>
   <canvas canvas-id="board" style="width:100%;height:750rpx;" catchtap="onBoardClick"></canvas>
-  <text>testtest</text>
+  
+  <view id="control-panel">
+    <view id="read-ctl-panel" class="ctl-btn-container" style="display:none">
+      <view class="control-btn" id="go-begin"></view>
+      <view class="control-btn" id="go-prev"></view>
+      <view class="control-btn" id="go-next"></view>
+      <view class="control-btn" id="go-end"></view>
+      <view id="settings"></view>
+    </view>
 
+    <view id="write-ctl-panel" class="ctl-btn-container">
+      <view class="control-btn" id="move-up">
+        <image class='btn-icon' src='../images/up.png'></image>
+      </view>
+      <view class="control-btn" id="move-left">
+        <image class='btn-icon' src='../images/left.png'></image>
+      </view>
+      <view class="control-btn" id="move-right">
+        <image class='btn-icon' src='../images/right.png'></image>
+      </view>
+      <view class="control-btn" id="move-down">
+        <image class='btn-icon' src='../images/down.png'></image>
+      </view>
+      <view id="ctl-confirm" catchtap="onConfirm">确认落子</view>
+    </view>
+  </view>
 </view>

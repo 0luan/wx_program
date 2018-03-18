@@ -1,5 +1,5 @@
 export function Board() {
-  const LINE_COUNT = 19;
+  const LINE_COUNT = 15;
   var width, height;
   var unit_size;  // 格子大小
   var stone_size; // 棋子大小
@@ -7,6 +7,10 @@ export function Board() {
 
   var canvas_id;
   var ctx;
+
+  var selected_x = -1;
+  var selected_y = -1;
+  var cached_stone_img; // 选择某个点位时保存棋子图像，取消选择时用来恢复
 
   return {
     init: function(id) {
@@ -51,12 +55,79 @@ export function Board() {
       return pt;
     },
 
-    setShowNum: function(bool) {
+    selectPoint: function(x, y) {
+      if (selected_x != -1 && selected_y != -1 && cached_stone_img) {
+        wx.canvasPutImageData({
+          canvasId: canvas_id,
+          data: cached_stone_img.data,
+          x: (selected_x + 0.5) * unit_size,
+          y: (selected_y + 0.5) * unit_size,
+          width: unit_size,
+        });
+      }
+
+      selected_x = x;
+      selected_y = y;
+
+      var rect_x = (x + 0.5) * unit_size;
+      var rect_y = (y + 0.5) * unit_size;
+      wx.canvasGetImageData({
+        canvasId: canvas_id,
+        x: rect_x,
+        y: rect_y,
+        width: unit_size,
+        height: unit_size,
+        success(res) {
+          cached_stone_img = res;
+          rect_x = rect_x + 5;
+          rect_y = rect_y + 5;
+          ctx.setFillStyle('red');
+          ctx.fillRect(rect_x, rect_y, unit_size - 10, unit_size - 10);
+          ctx.draw(true);
+        }
+      });
+    },
+
+    cancelSelect: function() {
+      if (selected_x != -1 && selected_y != -1 && cached_stone_img) {
+        wx.canvasPutImageData({
+          canvasId: canvas_id,
+          data: cached_stone_img.data,
+          x: (selected_x + 0.5) * unit_size,
+          y: (selected_y + 0.5) * unit_size,
+          width: unit_size,
+        });
+      }
+      
+      selected_x = -1;
+      selected_y = -1;
+      cached_stone_img = null;
+    },
+
+    moveUp: function() {
+    
+    },
+
+    moveRight: function() {
 
     },
 
+    moveDown: function() {
+
+    },
+
+    moveLeft: function() {
+
+    },
+
+    getSelectedPoint: function() {
+      return {
+        "x":selected_x,
+        "y":selected_y
+      };
+    },
+
     addStone: function(x, y, color, num) {
-      ctx = wx.createCanvasContext(canvas_id);
       x = (x+1)*unit_size;
       y = (y+1)*unit_size;
       
@@ -71,7 +142,7 @@ export function Board() {
       if (show_num) {
         ctx.setFillStyle(color==1?'white':'black');
         ctx.setLineWidth(2);
-        ctx.setFontSize(stone_size);
+        ctx.setFontSize(stone_size + 2);
         ctx.setTextBaseline('middle');
         ctx.setTextAlign('center');
         ctx.fillText(num, x, y);
@@ -84,7 +155,7 @@ export function Board() {
       x = (x + 0.5) * unit_size;
       y = (y + 0.5) * unit_size;
       ctx.setFillStyle('white');
-      ctx.fillRect(x, y, unit_size, unit_size);
+      ctx.clearRect(x, y, unit_size, unit_size);
 
       ctx.setLineWidth(1);
       ctx.setStrokeStyle('black');

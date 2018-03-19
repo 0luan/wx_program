@@ -3,14 +3,14 @@ export function Board() {
   var width, height;
   var unit_size;  // 格子大小
   var stone_size; // 棋子大小
-  var show_num = true;  // 是否显示数字
+
+  var node_data; // { color:xx, note:xx }
 
   var canvas_id;
   var ctx;
 
   var selected_x = -1;
   var selected_y = -1;
-  var cached_stone_img; // 选择某个点位时保存棋子图像，取消选择时用来恢复
 
   return {
     init: function(id) {
@@ -26,6 +26,11 @@ export function Board() {
       ctx.setStrokeStyle('black');
       ctx.setLineWidth(1);
       ctx.strokeRect(unit_size, unit_size, (width-2*unit_size), (width-2*unit_size));
+
+      node_data = new Array(LINE_COUNT);
+      for (var i = 0; i != LINE_COUNT; ++i) {
+        node_data[i] = new Array(LINE_COUNT);
+      }
       
       for (var i = 2; i != LINE_COUNT; ++i) {
         ctx.moveTo(i*unit_size, unit_size);
@@ -56,68 +61,94 @@ export function Board() {
     },
 
     selectPoint: function(x, y) {
-      if (selected_x != -1 && selected_y != -1 && cached_stone_img) {
-        wx.canvasPutImageData({
-          canvasId: canvas_id,
-          data: cached_stone_img.data,
-          x: (selected_x + 0.5) * unit_size,
-          y: (selected_y + 0.5) * unit_size,
-          width: unit_size,
-        });
+      if (selected_x != -1 && selected_y != -1) {
+        this.cancelSelect();
       }
 
       selected_x = x;
       selected_y = y;
-
       var rect_x = (x + 0.5) * unit_size;
       var rect_y = (y + 0.5) * unit_size;
-      wx.canvasGetImageData({
-        canvasId: canvas_id,
-        x: rect_x,
-        y: rect_y,
-        width: unit_size,
-        height: unit_size,
-        success(res) {
-          cached_stone_img = res;
-          rect_x = rect_x + 5;
-          rect_y = rect_y + 5;
-          ctx.setFillStyle('red');
-          ctx.fillRect(rect_x, rect_y, unit_size - 10, unit_size - 10);
-          ctx.draw(true);
-        }
-      });
+
+      rect_x = rect_x + 5;
+      rect_y = rect_y + 5;
+      ctx.setFillStyle('red');
+      ctx.fillRect(rect_x, rect_y, unit_size - 10, unit_size - 10);
+      ctx.draw(true);
     },
 
     cancelSelect: function() {
-      if (selected_x != -1 && selected_y != -1 && cached_stone_img) {
-        wx.canvasPutImageData({
-          canvasId: canvas_id,
-          data: cached_stone_img.data,
-          x: (selected_x + 0.5) * unit_size,
-          y: (selected_y + 0.5) * unit_size,
-          width: unit_size,
-        });
+      if (selected_x != -1 && selected_y != -1) {
+        var rect_x = (selected_x + 0.5) * unit_size;
+        var rect_y = (selected_y + 0.5) * unit_size;
+        console.log('clear rect ', rect_x, rect_y);
+        ctx.clearRect(rect_x, rect_y, unit_size, unit_size);
+        if (node_data[selected_x][selected_y]) {
+          this.addStone(selected_x, selected_y, node_data[selected_x][selected_y].color, node_data[selected_x][selected_y].note);
+        } else {
+          ctx.setLineWidth(1);
+          ctx.setStrokeStyle('black');
+          ctx.moveTo(rect_x, rect_y + 0.5 * unit_size);
+          ctx.lineTo(rect_x + unit_size, rect_y + 0.5 * unit_size);
+          ctx.stroke();
+
+          ctx.moveTo(rect_x + 0.5 * unit_size, rect_y);
+          ctx.lineTo(rect_x + 0.5 * unit_size, rect_y + unit_size);
+          ctx.stroke();
+          ctx.draw(true);
+        }
       }
       
       selected_x = -1;
       selected_y = -1;
-      cached_stone_img = null;
     },
 
     moveUp: function() {
-    
+      if (selected_x == -1 || selected_y == -1) {
+        return;
+      }
+
+      if (selected_y == 0) {
+        return;
+      }
+
+      this.selectPoint(selected_x, selected_y - 1);
     },
 
     moveRight: function() {
+      if (selected_x == -1 || selected_y == -1) {
+        return;
+      }
 
+      if (selected_x == LINE_COUNT - 1) {
+        return;
+      }
+
+      this.selectPoint(selected_x + 1, selected_y);
     },
 
     moveDown: function() {
+      if (selected_x == -1 || selected_y == -1) {
+        return;
+      }
 
+      if (selected_y == LINE_COUNT - 1) {
+        return;
+      }
+
+      this.selectPoint(selected_x, selected_y + 1);
     },
 
     moveLeft: function() {
+      if (selected_x == -1 || selected_y == -1) {
+        return;
+      }
 
+      if (selected_x == 0) {
+        return;
+      }
+
+      this.selectPoint(selected_x - 1, selected_y);
     },
 
     getSelectedPoint: function() {
@@ -127,7 +158,11 @@ export function Board() {
       };
     },
 
-    addStone: function(x, y, color, num) {
+    addStone: function(x, y, color, note) {
+      selected_x = -1;
+      selected_y = -1;
+      node_data[x][y] = { "color": color, "note": note };
+
       x = (x+1)*unit_size;
       y = (y+1)*unit_size;
       
@@ -139,14 +174,15 @@ export function Board() {
       ctx.setFillStyle(color==1?'black':'white');
       ctx.fill();
 
-      if (show_num) {
+      if (note) {
         ctx.setFillStyle(color==1?'white':'black');
         ctx.setLineWidth(2);
         ctx.setFontSize(stone_size + 2);
         ctx.setTextBaseline('middle');
         ctx.setTextAlign('center');
-        ctx.fillText(num, x, y);
+        ctx.fillText(note, x, y);
       }
+
 
       ctx.draw(true);
     },
@@ -171,11 +207,35 @@ export function Board() {
     },
 
     addText: function(x, y, text) {
+      x = (x + 1) * unit_size;
+      y = (y + 1) * unit_size;
 
+      ctx.setFillStyle(color == 1 ? 'white' : 'black');
+      ctx.setLineWidth(2);
+      ctx.setFontSize(stone_size + 2);
+      ctx.setTextBaseline('middle');
+      ctx.setTextAlign('center');
+      ctx.fillText(text, x, y);
+
+      ctx.draw(true);
     },
 
     removeText: function(x, y) {
+      x = (x + 0.5) * unit_size;
+      y = (y + 0.5) * unit_size;
+      ctx.setFillStyle('white');
+      ctx.clearRect(x, y, unit_size, unit_size);
 
+      ctx.setLineWidth(1);
+      ctx.setStrokeStyle('black');
+      ctx.moveTo(x, y + 0.5 * unit_size);
+      ctx.lineTo(x + unit_size, y + 0.5 * unit_size);
+      ctx.stroke();
+
+      ctx.moveTo(x + 0.5 * unit_size, y);
+      ctx.lineTo(x + 0.5 * unit_size, y + unit_size);
+      ctx.stroke();
+      ctx.draw(true);
     },
 
     clear: function() {

@@ -1,4 +1,32 @@
 <view>
+  <view id="header">
+    <image class='btn-icon' src='../images/settings.png' catchtap="onShowSettings"></image>
+    <view id='mode-text'>{{mode_text}}</view>
+    <view id="get-img">生成图片</view>
+  </view>
+
+  <!--设置对话框-->
+  <view class="modal-mask" bindtap="hideModal" catchtouchmove="preventTouchMove" wx:if="{{showSettings}}"></view>
+  <view class="modal-dialog" wx:if="{{showSettings}}">
+    <view class="modal-title">添加数量</view>
+    <view>模式选择</view>
+    <radio-group class="radio-group" bindchange="radioChange">
+      <label class="radio" wx:for="{{radio_modes}}">
+        <radio value="{{item.name}}" checked="{{item.checked}}"/>{{item.value}}
+      </label>
+    </radio-group>
+    <view>显示数字</view>
+    <radio-group class="radio-group" bindchange="radioChange">
+      <label class="radio" wx:for="{{radio_show_num}}">
+        <radio value="{{item.name}}" checked="{{item.checked}}"/>{{item.value}}
+      </label>
+    </radio-group>
+    <view class="modal-footer">
+      <view class="btn-cancel" bindtap="onCancel" data-status="cancel">取消</view>
+      <view class="btn-confirm" bindtap="onConfirm" data-status="confirm">确定</view>
+    </view>
+  </view>
+
   <canvas canvas-id="board" style="width:100%;height:750rpx;" catchtap="onBoardClick"></canvas>
   
   <view id="control-panel">
@@ -11,19 +39,19 @@
     </view>
 
     <view id="write-ctl-panel" class="ctl-btn-container">
-      <view class="control-btn" id="move-up">
+      <view class="control-btn" id="move-up" catchtap="onMoveUpClick">
         <image class='btn-icon' src='../images/up.png'></image>
       </view>
-      <view class="control-btn" id="move-left">
+      <view class="control-btn" id="move-left" catchtap="onMoveLeftClick">
         <image class='btn-icon' src='../images/left.png'></image>
       </view>
-      <view class="control-btn" id="move-right">
+      <view class="control-btn" id="move-right" catchtap="onMoveRightClick">
         <image class='btn-icon' src='../images/right.png'></image>
       </view>
-      <view class="control-btn" id="move-down">
+      <view class="control-btn" id="move-down" catchtap="onMoveDownClick">
         <image class='btn-icon' src='../images/down.png'></image>
       </view>
-      <view id="ctl-confirm" catchtap="onConfirm">确认落子</view>
+      <view id="ctl-confirm" catchtap="onConfirm">{{mode==2?"设置标注":"确认落子"}}</view>
     </view>
   </view>
 </view>

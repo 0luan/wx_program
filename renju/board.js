@@ -12,6 +12,8 @@ export function Board() {
   var selected_x = -1;
   var selected_y = -1;
 
+  var show_coordinate = true; // 显示坐标
+
   return {
     init: function(id) {
       console.log("board.init");
@@ -43,8 +45,47 @@ export function Board() {
         ctx.stroke();
       }
 
+      ctx.setFillStyle('black');
+      ctx.setLineWidth(2);
+      ctx.setFontSize(stone_size);
+      ctx.setTextBaseline('middle');
+      ctx.setTextAlign('right');
+      for (var i = 0; i != LINE_COUNT; ++i) {
+        var text_rect_x = (i+1) * unit_size;
+        ctx.fillText(""+i, 0.5*unit_size, text_rect_x);
+      }
+      ctx.setTextBaseline('bottom');
+      ctx.setTextAlign('center');
+      for (var i = 0; i != LINE_COUNT; ++i) {
+        var text_rect_x = (i + 1) * unit_size;
+        ctx.fillText(String.fromCharCode((65 + i)), text_rect_x, 0.5 * unit_size);
+      }
       ctx.draw();
     },
+
+    setShowNum: function(bool) {
+      if (bool) {
+        ctx.setFillStyle('black');
+        ctx.setLineWidth(2);
+        ctx.setFontSize(stone_size);
+        ctx.setTextBaseline('middle');
+        ctx.setTextAlign('right');
+        for (var i = 0; i != LINE_COUNT; ++i) {
+          var text_rect_x = (i + 1) * unit_size;
+          ctx.fillText("" + i, 0.5 * unit_size, text_rect_x);
+        }
+        ctx.setTextBaseline('bottom');
+        ctx.setTextAlign('center');
+        for (var i = 0; i != LINE_COUNT; ++i) {
+          var text_rect_x = (i + 1) * unit_size;
+          ctx.fillText(String.fromCharCode((65 + i)), text_rect_x, 0.5 * unit_size);
+        }
+        ctx.draw();
+      } else {
+        ctx.clearRect(0, 0, width, 0.5*unit_size);
+        ctx.clearRect(0, 0, 0.5*unit_size, width);
+      }
+    }, 
 
     pointToXY: function(x, y) {
       var pt = {

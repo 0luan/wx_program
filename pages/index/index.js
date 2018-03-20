@@ -19,21 +19,17 @@ Page({
     color: 1, // 0-white, 1-black
     showSettings: true,
     radio_modes: [
-      { name: 'USA', value: '美国' },
-      { name: 'CHN', value: '中国', checked: 'true' },
-      { name: 'BRA', value: '巴西' },
-      { name: 'JPN', value: '日本' },
-      { name: 'ENG', value: '英国' },
-      { name: 'TUR', value: '法国' },
+      { name: NORMAL_MODE, value: '顺序落子', checked: 'true' },
+      { name: FREE_MODE, value: '自由摆局'},
+      { name: NOTE_MODE, value: '标注模式' },
     ],
     radio_show_num: [
-      { name: 'USA', value: '美国' },
-      { name: 'CHN', value: '中国', checked: 'true' },
-      { name: 'BRA', value: '巴西' },
-      { name: 'JPN', value: '日本' },
-      { name: 'ENG', value: '英国' },
-      { name: 'TUR', value: '法国' },
-    ]
+      { name: SHOW_NUM, value: '显示全部数字', checked: 'true' },
+      { name: SHOW_LAST_5, value: '显示最后5步'},
+      { name: SHOW_NONE_NUM, value: '不显示数字' },
+    ],
+    show_coordinate: true,
+    selected_point: false,
   },
 
   b: Board(),
@@ -107,17 +103,27 @@ Page({
   onMoveUpClick: function (e) {
     this.b.moveUp();
   },
-
   onMoveRightClick: function (e) {
     this.b.moveRight();
   },
-
   onMoveLeftClick: function (e) {
     this.b.moveLeft();
   },
-
   onMoveDownClick: function (e) {
     this.b.moveDown();
+  },
+
+  onGoBeginClick: function() {
+    this.controller.goBegin();
+  },
+  onGoPrevClick: function () {
+    this.controller.goPrev();
+  },
+  onGoNextClick: function () {
+    this.controller.goNext();
+  },
+  onGoEndClick: function () {
+    this.controller.goEnd();
   },
 
   onConfirm: function() {
@@ -134,8 +140,32 @@ Page({
   
   },
 
+  onGenerateImage: function() {
+    var win_width = wx.getSystemInfoSync().windowWidth;
+    wx.canvasToTempFilePath({
+      x: 0,
+      y: 0,
+      width: win_width,
+      height: win_width,
+      destWidth: win_width,
+      destHeight: win_width,
+      canvasId: 'board',
+      success: function (res) {
+        console.log(res);
+      }
+    });
+  },
+
   onShowSettings: function() {
+    this.setData({"showSettings":true});
+  },
+
+  onSettingsConfirm: function() {
 
   },
+
+  onSettingsCancel: function() {
+    this.setData({ "showSettings": false });
+  }
 
 })

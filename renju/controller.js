@@ -36,6 +36,35 @@ export function RenjuController() {
       stones[x][y] = { "color": color, "note": "" + cur_index, "num": cur_index };
       board.addStone(x, y, color, "" + cur_index);
       console.log(move_list);
+    },
+
+    goPrev: function() {
+      if (cur_index == 0 || move_list.length == 0) {
+        return;
+      }
+      --cur_index;
+      board.removeStone(move_list[cur_index].x, move_list[cur_index].y);
+      
+    },
+
+    goNext: function() {
+      if (move_list.length == 0 || cur_index == move_list.length) {
+        return;
+      }
+
+      var stone = stones[move_list[cur_index].x][move_list[cur_index].y];
+      if (stone) {
+        board.addStone(move_list[cur_index].x, move_list[cur_index].y, stone.color, stone.note);
+        ++cur_index;
+      }
+    },
+
+    goBegin: function() {
+
+    },
+
+    goEnd: function() {
+
     }
   }
 

@@ -4,7 +4,7 @@ export function Board() {
   var unit_size;  // 格子大小
   var stone_size; // 棋子大小
 
-  var node_data; // { color:xx, note:xx }
+  var node_data; // { color:xx, note:xx }  pure text if color==-1
 
   var canvas_id;
   var ctx;
@@ -12,6 +12,7 @@ export function Board() {
   var selected_x = -1;
   var selected_y = -1;
 
+  var show_background = true; // 显示背景图
   var show_coordinate = true; // 显示坐标
 
   return {
@@ -24,7 +25,6 @@ export function Board() {
       canvas_id = id;
 
       ctx = wx.createCanvasContext(id);
-      console.log(unit_size, unit_size, (width - unit_size), (width - unit_size));
       ctx.setStrokeStyle('black');
       ctx.setLineWidth(1);
       ctx.strokeRect(unit_size, unit_size, (width-2*unit_size), (width-2*unit_size));
@@ -45,25 +45,39 @@ export function Board() {
         ctx.stroke();
       }
 
-      ctx.setFillStyle('black');
-      ctx.setLineWidth(2);
-      ctx.setFontSize(stone_size);
-      ctx.setTextBaseline('middle');
-      ctx.setTextAlign('right');
-      for (var i = 0; i != LINE_COUNT; ++i) {
-        var text_rect_x = (i+1) * unit_size;
-        ctx.fillText(""+i, 0.5*unit_size, text_rect_x);
+      if (show_coordinate) {
+        ctx.setFillStyle('black');
+        ctx.setLineWidth(2);
+        ctx.setFontSize(stone_size);
+        ctx.setTextBaseline('middle');
+        ctx.setTextAlign('right');
+        for (var i = 0; i != LINE_COUNT; ++i) {
+          var text_rect_x = (i+1) * unit_size;
+          ctx.fillText("" + (i + 1), 0.5*unit_size, text_rect_x);
+        }
+        ctx.setTextBaseline('bottom');
+        ctx.setTextAlign('center');
+        for (var i = 0; i != LINE_COUNT; ++i) {
+          var text_rect_x = (i + 1) * unit_size;
+          ctx.fillText(String.fromCharCode((65 + i)), text_rect_x, 0.5 * unit_size);
+        }
       }
-      ctx.setTextBaseline('bottom');
-      ctx.setTextAlign('center');
-      for (var i = 0; i != LINE_COUNT; ++i) {
-        var text_rect_x = (i + 1) * unit_size;
-        ctx.fillText(String.fromCharCode((65 + i)), text_rect_x, 0.5 * unit_size);
-      }
+
       ctx.draw();
     },
 
-    setShowNum: function(bool) {
+    setShowBackground: function(bool) {
+      if (show_background == bool) {
+        return;
+      }
+    },
+
+    setShowCoordinate: function(bool) {
+      if (bool == show_coordinate) {
+        return;
+      }
+
+      show_coordinate = bool;
       if (bool) {
         ctx.setFillStyle('black');
         ctx.setLineWidth(2);
@@ -280,6 +294,110 @@ export function Board() {
     },
 
     clear: function() {
+
+    },
+
+    /* {size:xxx, tmp_canvas_id:xxx, callback(res) {}} */
+    generateImage: function(obj) {
+      const target_size = obj.size;
+      const target_unit_size = target_size / (LINE_COUNT+1); 
+      const target_stone_size = (target_unit_size - 4) / 2;
+      const tmp_canvas_id = obj.tmp_canvas_id;
+      var page = getCurrentPages();
+      page = page[page.length-1];
+      page.setData({ "target_img_size": target_size+'px' });
+
+      var target_ctx = wx.createCanvasContext(tmp_canvas_id);
+      // draw background
+      if (show_background) {
+        const pattern = ctx.createPattern('../images/Wood1.png', 'repeat');
+        target_ctx.fillStyle = pattern;
+      } else {
+        target_ctx.setFillStyle('white');
+      }
+      target_ctx.fillRect(0, 0, target_size, target_size);
+      
+
+      // draw lines
+      target_ctx.setStrokeStyle('black');
+      target_ctx.setLineWidth(1);
+      target_ctx.strokeRect(target_unit_size, target_unit_size, (target_size - 2 * target_unit_size), (target_size - 2 * target_unit_size));
+      for (var i = 2; i != LINE_COUNT; ++i) {
+        target_ctx.moveTo(i * target_unit_size, target_unit_size);
+        target_ctx.lineTo(i * target_unit_size, target_size - target_unit_size);
+        target_ctx.stroke();
+      }
+      for (var i = 2; i != LINE_COUNT; ++i) {
+        target_ctx.moveTo(target_unit_size, i * target_unit_size);
+        target_ctx.lineTo(target_size - target_unit_size, i * target_unit_size);
+        target_ctx.stroke();
+      }
+
+      // draw coordinate
+      target_ctx.setFillStyle('black');
+      target_ctx.setLineWidth(2);
+      target_ctx.setFontSize(target_stone_size);
+      target_ctx.setTextBaseline('middle');
+      target_ctx.setTextAlign('right');
+      for (var i = 0; i != LINE_COUNT; ++i) {
+        var text_rect_x = (i + 1) * target_unit_size;
+        target_ctx.fillText("" + (i+1), 0.5 * target_unit_size, text_rect_x);
+      }
+      target_ctx.setTextBaseline('bottom');
+      target_ctx.setTextAlign('center');
+      for (var i = 0; i != LINE_COUNT; ++i) {
+        var text_rect_x = (i + 1) * target_unit_size;
+        target_ctx.fillText(String.fromCharCode((65 + i)), text_rect_x, 0.5 * target_unit_size);
+      }
+
+      // draw stone or text
+      for (var i = 0; i != LINE_COUNT; ++i) {
+        for (var j = 0; j != LINE_COUNT; ++j) {
+          var node = node_data[i][j];
+          if (node) {
+            if (node.color == -1) { // text
+
+            } else {  // stone
+              var pos_x = (i + 1) * target_unit_size;
+              var pos_y = (j + 1) * target_unit_size;
+
+              target_ctx.setLineWidth(1);
+              target_ctx.setStrokeStyle('black');
+              target_ctx.beginPath();
+              target_ctx.arc(pos_x, pos_y, target_stone_size, 0, 2 * Math.PI);
+              target_ctx.stroke();
+              target_ctx.setFillStyle(node.color == 1 ? 'black' : 'white');
+              target_ctx.fill();
+
+              if (node.note) {
+                target_ctx.setFillStyle(node.color == 1 ? 'white' : 'black');
+                target_ctx.setLineWidth(2);
+                target_ctx.setFontSize(target_stone_size + 2);
+                target_ctx.setTextBaseline('middle');
+                target_ctx.setTextAlign('center');
+                target_ctx.fillText(node.note, pos_x, pos_y);
+              }
+            }
+          }
+        }
+      }
+
+      target_ctx.draw(false, (e) => {
+        var callback = obj.callback;
+        console.log('draw finished');
+        wx.canvasToTempFilePath({
+          x: 0,
+          y: 0,
+          width: target_size,
+          height: target_size,
+          destWidth: target_size,
+          destHeight: target_size,
+          canvasId: tmp_canvas_id,
+          complete: (res) => {
+            callback(res);
+          }
+        });
+      });
 
     }
   }

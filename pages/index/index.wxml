@@ -6,18 +6,22 @@
   </view>
 
   <!--设置对话框-->
-  <view class="modal-mask" catchtap="onSettingsCancel" catchtouchmove="preventTouchMove" wx:if="{{showSettings}}"></view>
+  <view class="modal-mask" catchtouchmove="preventTouchMove" wx:if="{{showSettings}}">
   <view class="modal-dialog" wx:if="{{showSettings}}">
     <view class="modal-title">设置</view>
-    <view>模式选择</view>
-    <radio-group class="radio-group" bindchange="radioChange">
-      <label class="radio" wx:for="{{radio_modes}}">
+    <label class="label">
+      显示背景图片<switch type="switch" checked="{{show_background}}" bindchange="onShowBgChanged"/>
+    </label>
+    <label class="label">
+      显示棋盘坐标<switch type="switch" checked="{{show_coordinate}}" bindchange="onShowCoChanged"/>
+    </label>
+    <radio-group class="radio-group" bindchange="onModeChanged">
+      <label class="label" wx:for="{{radio_modes}}">
         <radio value="{{item.name}}" checked="{{item.checked}}"/>{{item.value}}
       </label>
     </radio-group>
-    <view>显示数字</view>
-    <radio-group class="radio-group" bindchange="radioChange">
-      <label class="radio" wx:for="{{radio_show_num}}">
+    <radio-group class="radio-group" bindchange="onShowNumChanged">
+      <label class="label" wx:for="{{radio_show_num}}">
         <radio value="{{item.name}}" checked="{{item.checked}}"/>{{item.value}}
       </label>
     </radio-group>
@@ -26,9 +30,20 @@
       <view class="btn-confirm" catchtap="onSettingsConfirm">确定</view>
     </view>
   </view>
+  </view>
 
-  <canvas canvas-id="board" style="width:100%;height:750rpx;" catchtap="onBoardClick"></canvas>
-  
+  <!--预览对话框-->
+  <view class="preview-mask" catchtouchmove="preventTouchMove" wx:if="{{showPreview}}"></view>
+  <view class="preview-dialog" wx:if="{{showPreview}}">
+    <view id="preview-title">图片预览</view>
+    <image id="preview-img" src="{{tmp_picture_path}}"></image>
+    <button type="primary" catchtap="onSavePreview"> 保存图片 </button>
+    <button type="warn" catchtap="onCancelPreview"> 返回 </button>
+  </view>
+
+  <canvas canvas-id="board" hidden="{{showPreview||showSettings}}" style="width:100%;height:750rpx;" catchtap="onBoardClick"></canvas>
+  <canvas canvas-id="hidden-board" style="width:{{target_img_size}};height:{{target_img_size}}" id="hidden-board" catchtap="onBoardClick"></canvas>
+
   <view id="control-panel">
     <view id="read-ctl-panel" class="ctl-btn-container" wx:hidden="{{selected_point}}">
       <view class="control-btn" id="go-begin" catchtap="onGoBeginClick"><image class='btn-icon' src='../images/up.png'></image></view>
@@ -50,7 +65,9 @@
       <view class="control-btn" id="move-down" catchtap="onMoveDownClick">
         <image class='btn-icon' src='../images/down.png'></image>
       </view>
-      <view id="ctl-confirm" catchtap="onConfirm">{{mode==2?"设置标注":"确认落子"}}</view>
+      <view class="control-text-btn" id="ctl-add-black" hidden="{{mode!=1}}" catchtap="onAddBlackStone">摆黑子</view>
+      <view class="control-text-btn" id="ctl-add-white" hidden="{{mode!=1}}" catchtap="onAddWhiteStone">摆白子</view>
+      <view class="control-text-btn" id="ctl-confirm" hidden="{{mode==1}}" catchtap="onConfirm">{{mode==2?"设置标注":"确认落子"}}</view>
     </view>
   </view>
 </view>

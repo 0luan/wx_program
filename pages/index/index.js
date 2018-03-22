@@ -9,6 +9,8 @@ const SHOW_NUM = 0; // 显示全部数字
 const SHOW_LAST_5 = 1; // 显示最后5步
 const SHOW_NONE_NUM = 2; // 不显示数字
 
+var setting_cache;
+
 Page({
   /**
    * 页面的初始数据
@@ -17,7 +19,7 @@ Page({
     mode: NORMAL_MODE,
     mode_text:"打谱模式",
     color: 1, // 0-white, 1-black
-    showSettings: true,
+    showSettings: false,
     radio_modes: [
       { name: NORMAL_MODE, value: '顺序落子', checked: 'true' },
       { name: FREE_MODE, value: '自由摆局'},
@@ -28,73 +30,33 @@ Page({
       { name: SHOW_LAST_5, value: '显示最后5步'},
       { name: SHOW_NONE_NUM, value: '不显示数字' },
     ],
-    show_coordinate: true,
-    selected_point: false,
+    show_background: true,  // 显示背景图
+    show_coordinate: true,  // 显示坐标
+    selected_point: false,  // 是否已经有选中点
+
+    showPreview: false, 
+    tmp_picture_path: "",
+
   },
 
   b: Board(),
   controller: RenjuController(),
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
   onLoad: function (options) {
     this.b.init("board");
     this.controller.init(this.b);
   },
-
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload: function () {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh: function () {
-
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom: function () {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage: function () {
-
-  },
+  onReady: function () {},
+  onShow: function () {},
+  onHide: function () {},
+  onUnload: function () {},
+  onPullDownRefresh: function () {},
+  onReachBottom: function () {},
+  onShareAppMessage: function () {},
 
   onBoardClick: function(e) {
     console.log(e);
-    var pt = this.b.pointToXY(e.detail.x, e.detail.y);
+    var pt = this.b.pointToXY(e.detail.x-e.target.offsetLeft, e.detail.y-e.target.offsetTop);
     console.log(pt);
     //this.b.addStone(pt.x, pt.y, 0, 'A');
     this.b.selectPoint(pt.x, pt.y);
@@ -141,31 +103,62 @@ Page({
   },
 
   onGenerateImage: function() {
-    var win_width = wx.getSystemInfoSync().windowWidth;
-    wx.canvasToTempFilePath({
-      x: 0,
-      y: 0,
-      width: win_width,
-      height: win_width,
-      destWidth: win_width,
-      destHeight: win_width,
-      canvasId: 'board',
-      success: function (res) {
+    this.b.generateImage({
+      size:800,
+      tmp_canvas_id:'hidden-board',
+      callback:(res) => {
+        console.log('generate img success', res);
+        if (res.tempFilePath) {
+          this.setData({
+            "showPreview":true, 
+            "tmp_picture_path":res.tempFilePath
+          });
+        }
+      }
+    })
+  },
+  onSavePreview: function() {
+    wx.saveImageToPhotosAlbum({
+      filePath: this.data.tmp_picture_path,
+      success(res) {
         console.log(res);
       }
     });
   },
+  onCancelPreview: function() {
+    this.setData({
+      "showPreview": false,
+      "tmp_picture_path": ""
+    });
+  },
 
   onShowSettings: function() {
+    setting_cache = {};
     this.setData({"showSettings":true});
   },
-
   onSettingsConfirm: function() {
-
+    this.setData({
+      mode:setting_cache.mode,
+      mode_text: this.data.radio_modes[setting_cache.mode].value,
+      show_background: setting_cache.show_bg, 
+      show_coordinate: setting_cache.show_coordinate
+    });
   },
-
   onSettingsCancel: function() {
     this.setData({ "showSettings": false });
-  }
+  },
+
+  onShowBgChanged: function(e) {
+    setting_cache.show_bg = e.detail.value;
+  },
+  onShowCoChanged: function (e) {
+    setting_cache.show_coordinate = e.detail.value;
+  },
+  onModeChanged: function (e) {
+    setting_cache.mode = e.detail.value;
+  },
+  onShowNumChanged: function (e) {
+    setting_cache.show_num = e.detail.value;
+  },
 
 })

@@ -17,6 +17,7 @@ Page({
    */
   data: {
     mode: NORMAL_MODE,
+    show_num: SHOW_NUM,
     mode_text:"打谱模式",
     color: 1, // 0-white, 1-black
     showSettings: false,
@@ -137,9 +138,17 @@ Page({
     this.setData({"showSettings":true});
   },
   onSettingsConfirm: function() {
+    if (show_num != setting_cache.show_num) {
+      
+    } else {
+      
+    }
+
     this.setData({
+      showSettings:false,
       mode:setting_cache.mode,
       mode_text: this.data.radio_modes[setting_cache.mode].value,
+      show_num: setting_cache.show_num,
       show_background: setting_cache.show_bg, 
       show_coordinate: setting_cache.show_coordinate
     });

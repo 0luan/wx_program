@@ -1,7 +1,7 @@
 import {Board} from "board.js"
 
 export function RenjuController() {
-
+  var show_num = 0;
 
   var board;
   var cur_index = 0;

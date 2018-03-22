@@ -25,6 +25,14 @@ export function Board() {
       canvas_id = id;
 
       ctx = wx.createCanvasContext(id);
+      ctx.clearRect(0, 0, width, width);
+      // draw background
+      if (show_background) {
+        const pattern = ctx.createPattern('../images/Wood1.png', 'repeat');
+        ctx.fillStyle = pattern;
+        ctx.fillRect(0, 0, width, width);
+      }
+
       ctx.setStrokeStyle('black');
       ctx.setLineWidth(1);
       ctx.strokeRect(unit_size, unit_size, (width-2*unit_size), (width-2*unit_size));
@@ -66,10 +74,85 @@ export function Board() {
       ctx.draw();
     },
 
-    setShowBackground: function(bool) {
-      if (show_background == bool) {
-        return;
+    reset: function() {
+      init(canvas_id);
+    },
+
+    refresh: function() {
+      ctx.clearRect(0, 0, width, width);
+      if (show_background) {
+        const pattern = ctx.createPattern('../images/Wood1.png', 'repeat');
+        ctx.fillStyle = pattern;
+        ctx.fillRect(0, 0, width, width);
       }
+
+      // draw lines
+      ctx.setStrokeStyle('black');
+      ctx.setLineWidth(1);
+      ctx.strokeRect(unit_size, unit_size, (width - 2 * unit_size), (width - 2 * unit_size));
+      for (var i = 2; i != LINE_COUNT; ++i) {
+        ctx.moveTo(i * unit_size, unit_size);
+        ctx.lineTo(i * unit_size, width - unit_size);
+        ctx.stroke();
+      }
+      for (var i = 2; i != LINE_COUNT; ++i) {
+        ctx.moveTo(unit_size, i * unit_size);
+        ctx.lineTo(width - unit_size, i * unit_size);
+        ctx.stroke();
+      }
+
+      // draw coordinate
+      ctx.setFillStyle('black');
+      ctx.setLineWidth(2);
+      ctx.setFontSize(stone_size);
+      ctx.setTextBaseline('middle');
+      ctx.setTextAlign('right');
+      for (var i = 0; i != LINE_COUNT; ++i) {
+        var text_rect_x = (i + 1) * unit_size;
+        ctx.fillText("" + (i + 1), 0.5 * unit_size, text_rect_x);
+      }
+      ctx.setTextBaseline('bottom');
+      ctx.setTextAlign('center');
+      for (var i = 0; i != LINE_COUNT; ++i) {
+        var text_rect_x = (i + 1) * unit_size;
+        ctx.fillText(String.fromCharCode((65 + i)), text_rect_x, 0.5 * unit_size);
+      }
+
+      // draw stone or text
+      for (var i = 0; i != LINE_COUNT; ++i) {
+        for (var j = 0; j != LINE_COUNT; ++j) {
+          var node = node_data[i][j];
+          if (node) {
+            if (node.color == -1) { // text
+
+            } else {  // stone
+              var pos_x = (i + 1) * unit_size;
+              var pos_y = (j + 1) * unit_size;
+
+              ctx.setLineWidth(1);
+              ctx.setStrokeStyle('black');
+              ctx.beginPath();
+              ctx.arc(pos_x, pos_y, stone_size, 0, 2 * Math.PI);
+              ctx.stroke();
+              ctx.setFillStyle(node.color == 1 ? 'black' : 'white');
+              ctx.fill();
+
+              if (node.note) {
+                ctx.setFillStyle(node.color == 1 ? 'white' : 'black');
+                ctx.setLineWidth(2);
+                ctx.setFontSize(stone_size + 2);
+                ctx.setTextBaseline('middle');
+                ctx.setTextAlign('center');
+                ctx.fillText(node.note, pos_x, pos_y);
+              }
+            }
+          }
+        }
+      }
+    },
+
+    setShowBackground: function(bool) {
+      show_background = bool;
     },
 
     setShowCoordinate: function(bool) {

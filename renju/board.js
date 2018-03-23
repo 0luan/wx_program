@@ -26,12 +26,12 @@ export function Board() {
 
       ctx = wx.createCanvasContext(id);
       ctx.clearRect(0, 0, width, width);
-      // draw background
-      if (show_background) {
-        const pattern = ctx.createPattern('../images/Wood1.png', 'repeat');
-        ctx.fillStyle = pattern;
-        ctx.fillRect(0, 0, width, width);
-      }
+      // // draw background
+      // if (show_background) {
+      //   const pattern = ctx.createPattern('../images/Wood1.png', 'repeat');
+      //   ctx.fillStyle = pattern;
+      //   ctx.fillRect(0, 0, width, width);
+      // }
 
       ctx.setStrokeStyle('black');
       ctx.setLineWidth(1);
@@ -75,7 +75,7 @@ export function Board() {
     },
 
     reset: function() {
-      init(canvas_id);
+      this.init(canvas_id);
     },
 
     refresh: function() {
@@ -149,6 +149,8 @@ export function Board() {
           }
         }
       }
+
+      ctx.draw();
     },
 
     setShowBackground: function(bool) {
@@ -169,7 +171,7 @@ export function Board() {
         ctx.setTextAlign('right');
         for (var i = 0; i != LINE_COUNT; ++i) {
           var text_rect_x = (i + 1) * unit_size;
-          ctx.fillText("" + i, 0.5 * unit_size, text_rect_x);
+          ctx.fillText("" + (i + 1), 0.5 * unit_size, text_rect_x);
         }
         ctx.setTextBaseline('bottom');
         ctx.setTextAlign('center');
@@ -177,11 +179,11 @@ export function Board() {
           var text_rect_x = (i + 1) * unit_size;
           ctx.fillText(String.fromCharCode((65 + i)), text_rect_x, 0.5 * unit_size);
         }
-        ctx.draw();
       } else {
         ctx.clearRect(0, 0, width, 0.5*unit_size);
         ctx.clearRect(0, 0, 0.5*unit_size, width);
       }
+      ctx.draw(true);
     }, 
 
     pointToXY: function(x, y) {
@@ -297,6 +299,7 @@ export function Board() {
     },
 
     addStone: function(x, y, color, note) {
+      console.log('board.addStone', x, y, color, note);
       selected_x = -1;
       selected_y = -1;
       node_data[x][y] = { "color": color, "note": note };
@@ -304,6 +307,7 @@ export function Board() {
       x = (x+1)*unit_size;
       y = (y+1)*unit_size;
       
+      ctx.clearRect(x - 0.5 * unit_size, y - 0.5 * unit_size, unit_size, unit_size);
       ctx.setLineWidth(1);
       ctx.setStrokeStyle('black');
       ctx.beginPath();
@@ -326,6 +330,8 @@ export function Board() {
     },
 
     removeStone: function(x, y) {
+      console.log('board.removeStone', x, y);
+      
       x = (x + 0.5) * unit_size;
       y = (y + 0.5) * unit_size;
       ctx.setFillStyle('white');
@@ -345,17 +351,24 @@ export function Board() {
     },
 
     addText: function(x, y, text) {
-      x = (x + 1) * unit_size;
-      y = (y + 1) * unit_size;
+      var node = node_data[x][y];
+      if (node && node.color != -1) {
+        this.addStone(x, y, node.color, text);
+      } else {
+        node_data[x][y] = { "color": -1, "note": text };
 
-      ctx.setFillStyle(color == 1 ? 'white' : 'black');
-      ctx.setLineWidth(2);
-      ctx.setFontSize(stone_size + 2);
-      ctx.setTextBaseline('middle');
-      ctx.setTextAlign('center');
-      ctx.fillText(text, x, y);
+        x = (x + 1) * unit_size;
+        y = (y + 1) * unit_size;
 
-      ctx.draw(true);
+        ctx.setFillStyle(color == 1 ? 'white' : 'black');
+        ctx.setLineWidth(2);
+        ctx.setFontSize(stone_size + 2);
+        ctx.setTextBaseline('middle');
+        ctx.setTextAlign('center');
+        ctx.fillText(text, x, y);
+
+        ctx.draw(true);
+      }
     },
 
     removeText: function(x, y) {

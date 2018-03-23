@@ -41,8 +41,11 @@
     <button type="warn" catchtap="onCancelPreview"> 返回 </button>
   </view>
 
-  <canvas canvas-id="board" hidden="{{showPreview||showSettings}}" style="width:100%;height:750rpx;" catchtap="onBoardClick"></canvas>
-  <canvas canvas-id="hidden-board" style="width:{{target_img_size}};height:{{target_img_size}}" id="hidden-board" catchtap="onBoardClick"></canvas>
+  <view style="position:relative;">
+    <view id="board-bg" hidden="{{!show_background}}" />
+    <canvas canvas-id="board" hidden="{{showPreview||showSettings}}" style="width:100%;height:750rpx;" bindtap="onBoardClick"></canvas>
+  </view>
+  <canvas canvas-id="hidden-board" style="width:{{target_img_size}};height:{{target_img_size}}" id="hidden-board"></canvas>
 
   <view id="control-panel">
     <view id="read-ctl-panel" class="ctl-btn-container" wx:hidden="{{selected_point}}">

@@ -134,14 +134,21 @@ Page({
   },
 
   onShowSettings: function() {
-    setting_cache = {};
+    setting_cache = {
+      show_bg: this.data.show_background,
+      show_coordinate: this.data.show_coordinate,
+      show_num: this.data.show_num,
+      mode: this.data.mode
+    };
     this.setData({"showSettings":true});
   },
   onSettingsConfirm: function() {
-    if (show_num != setting_cache.show_num) {
-      
-    } else {
-      
+    if (this.data.show_num != setting_cache.show_num) {
+      this.controller.setShowNum(setting_cache.show_num);
+    }
+
+    if (this.data.show_coordinte != setting_cache.show_coordinate) {
+      this.b.setShowCoordinate(setting_cache.show_coordinate);
     }
 
     this.setData({
@@ -150,7 +157,15 @@ Page({
       mode_text: this.data.radio_modes[setting_cache.mode].value,
       show_num: setting_cache.show_num,
       show_background: setting_cache.show_bg, 
-      show_coordinate: setting_cache.show_coordinate
+      show_coordinate: setting_cache.show_coordinate,
+
+      'radio_modes[0].checked': setting_cache.mode == 0,
+      'radio_modes[1].checked': setting_cache.mode == 1,
+      'radio_modes[2].checked': setting_cache.mode == 2,
+
+      'radio_show_num[0].checked': setting_cache.show_num == 0,
+      'radio_show_num[1].checked': setting_cache.show_num == 1,
+      'radio_show_num[2].checked': setting_cache.show_num == 2,
     });
   },
   onSettingsCancel: function() {
@@ -167,7 +182,7 @@ Page({
     setting_cache.mode = e.detail.value;
   },
   onShowNumChanged: function (e) {
-    setting_cache.show_num = e.detail.value;
+    setting_cache.show_num = parseInt(e.detail.value);
   },
 
 })

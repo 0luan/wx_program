@@ -89,11 +89,11 @@ export function RenjuController() {
           board.addStone(x, y, color, "" + stones[x][y].num);
         break;
         case 1:
-          var to_remove_index = cur_index - 4;
-          if (to_remove_index > 0) {
+          var to_remove_index = cur_index - 6;
+          if (to_remove_index >= 0) {
             var old_stone = move_list[to_remove_index];
             var tmp = stones[old_stone.x][old_stone.y];
-            board.removeStone(old_stone.x, old_stone.y);
+            board.removeStone(old_stone.x, old_stone.y, false);
             board.addStone(old_stone.x, old_stone.y, tmp.color, tmp.note);
           }
 
@@ -105,6 +105,17 @@ export function RenjuController() {
       }
       
       console.log(move_list);
+    },
+
+    addText: function(x, y, note) {
+      var stone = stones[x][y];
+      if (stone && stone.color != -1) {
+        stone.note = note;
+        board.addStone(x, y, stone.color, note);
+      } else {
+        stones[x][y] = {"color":-1, "note":note};
+        board.addText(x, y, note);
+      }
     },
 
     goPrev: function() {

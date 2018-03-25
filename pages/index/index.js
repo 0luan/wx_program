@@ -91,6 +91,13 @@ Page({
 
   onConfirm: function() {
     var pt = this.b.getSelectedPoint();
+
+    if (this.data.mode == NOTE_MODE) {
+      this.controller.addText(pt.x, pt.y, 'A');
+      return;
+    }
+
+    
     //this.b.cancelSelect();
     var stone = this.controller.getStone(pt.x, pt.y);
     if (stone) {
@@ -101,6 +108,28 @@ Page({
       else this.data.color = 1;
     }
   
+  },
+
+  onAddBlackStone: function() {
+    var pt = this.b.getSelectedPoint();
+    //this.b.cancelSelect();
+    var stone = this.controller.getStone(pt.x, pt.y);
+    if (stone) {
+
+    } else {
+      this.controller.addStone(pt.x, pt.y, 1);
+    }
+  },
+
+  onAddWhiteStone: function() {
+    var pt = this.b.getSelectedPoint();
+    //this.b.cancelSelect();
+    var stone = this.controller.getStone(pt.x, pt.y);
+    if (stone) {
+
+    } else {
+      this.controller.addStone(pt.x, pt.y, 0);
+    }
   },
 
   onGenerateImage: function() {

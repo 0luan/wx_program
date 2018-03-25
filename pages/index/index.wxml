@@ -43,7 +43,8 @@
 
   <view style="position:relative;">
     <view id="board-bg" hidden="{{!show_background}}" />
-    <canvas canvas-id="board" hidden="{{showPreview||showSettings}}" style="width:100%;height:750rpx;" bindtap="onBoardClick"></canvas>
+    <!--  hidden="{{showPreview||showSettings}}"  -->
+    <canvas canvas-id="board"style="width:100%;height:750rpx;" bindtap="onBoardClick"></canvas>
   </view>
   <canvas canvas-id="hidden-board" style="width:{{target_img_size}};height:{{target_img_size}}" id="hidden-board"></canvas>
 
@@ -68,6 +69,7 @@
       <view class="control-btn" id="move-down" catchtap="onMoveDownClick">
         <image class='btn-icon' src='../images/down.png'></image>
       </view>
+      <view style="flex:999" />
       <view class="control-text-btn" id="ctl-add-black" hidden="{{mode!=1}}" catchtap="onAddBlackStone">摆黑子</view>
       <view class="control-text-btn" id="ctl-add-white" hidden="{{mode!=1}}" catchtap="onAddWhiteStone">摆白子</view>
       <view class="control-text-btn" id="ctl-confirm" hidden="{{mode==1}}" catchtap="onConfirm">{{mode==2?"设置标注":"确认落子"}}</view>

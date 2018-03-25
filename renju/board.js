@@ -298,7 +298,7 @@ export function Board() {
       };
     },
 
-    addStone: function(x, y, color, note) {
+    addStone: function(x, y, color, note, refresh = true) {
       console.log('board.addStone', x, y, color, note);
       selected_x = -1;
       selected_y = -1;
@@ -325,11 +325,11 @@ export function Board() {
         ctx.fillText(note, x, y);
       }
 
-
-      ctx.draw(true);
+      if (refresh)
+        ctx.draw(true);
     },
 
-    removeStone: function(x, y) {
+    removeStone: function(x, y, refresh = true) {
       console.log('board.removeStone', x, y);
       
       x = (x + 0.5) * unit_size;
@@ -346,11 +346,16 @@ export function Board() {
       ctx.moveTo(x + 0.5 * unit_size, y);
       ctx.lineTo(x + 0.5 * unit_size, y + unit_size);
       ctx.stroke();
-      ctx.draw(true);
+
+      if (refresh)
+        ctx.draw(true);
 
     },
 
     addText: function(x, y, text) {
+      selected_x = -1;
+      selected_y = -1;
+
       var node = node_data[x][y];
       if (node && node.color != -1) {
         this.addStone(x, y, node.color, text);
@@ -359,8 +364,9 @@ export function Board() {
 
         x = (x + 1) * unit_size;
         y = (y + 1) * unit_size;
+        ctx.clearRect(x - 0.5 * unit_size, y - 0.5 * unit_size, unit_size, unit_size);
 
-        ctx.setFillStyle(color == 1 ? 'white' : 'black');
+        ctx.setFillStyle('black');
         ctx.setLineWidth(2);
         ctx.setFontSize(stone_size + 2);
         ctx.setTextBaseline('middle');

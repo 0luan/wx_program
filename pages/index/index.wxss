@@ -186,7 +186,5 @@ button {
   color:rgb(220,208,164);
   height:32px;
   line-height:32px;
-  position:absolute;
-  right:0;
   margin-right:10px;
 }

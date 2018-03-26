@@ -157,21 +157,7 @@ export function RenjuController() {
 
       var stone = stones[move_list[cur_index].x][move_list[cur_index].y];
       if (stone) {
-        if (stone.note) {
-          board.addStone(move_list[cur_index].x, move_list[cur_index].y, stone.color, stone.note);
-        } else {
-          switch (show_num) {
-            case 0:
-
-            break;
-            case 1:
-
-            break;
-            case 2:
-
-            break;
-          }
-        }
+        board.addStone(move_list[cur_index].x, move_list[cur_index].y, stone.color, stone.note);
         ++cur_index;
       }
     },

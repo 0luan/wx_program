@@ -6,8 +6,6 @@ export function Board() {
 
   var node_data; // { color:xx, note:xx }  pure text if color==-1
 
-  var star_pos = [{x:3, y:3}, {x:3 ,y:11}, {x:11, y:3}, {x:11, y:11}, {x:7, y:7}];
-
   var canvas_id;
   var ctx;
 
@@ -55,20 +53,6 @@ export function Board() {
         ctx.stroke();
       }
 
-      // draw star
-      for (var i = 0; i != star_pos.length; ++i) {
-        var x = (star_pos[i].x+1) * unit_size;
-        var y = (star_pos[i].y + 1) * unit_size;
-        ctx.setLineWidth(1);
-        ctx.setStrokeStyle('black');
-        ctx.beginPath();
-        ctx.arc(x, y, 4, 0, 2 * Math.PI);
-        ctx.stroke();
-        ctx.setFillStyle('black');
-        ctx.fill();
-      }
-
-      // draw coordinate
       if (show_coordinate) {
         ctx.setFillStyle('black');
         ctx.setLineWidth(2);
@@ -167,15 +151,6 @@ export function Board() {
       }
 
       ctx.draw();
-    },
-
-    isStarPos: function(x, y) {
-      if (x == 7 && y == 7) return true;
-      if (x == 3 && y == 3) return true;
-      if (x == 3 && y == 11) return true;
-      if (x == 11 && y == 3) return true;
-      if (x == 11 && y == 11) return true;
-      return false;
     },
 
     setShowBackground: function(bool) {
@@ -389,7 +364,7 @@ export function Board() {
 
         x = (x + 1) * unit_size;
         y = (y + 1) * unit_size;
-        //ctx.clearRect(x - 0.5 * unit_size, y - 0.5 * unit_size, unit_size, unit_size);
+        ctx.clearRect(x - 0.5 * unit_size, y - 0.5 * unit_size, unit_size, unit_size);
 
         ctx.setFillStyle('black');
         ctx.setLineWidth(2);
@@ -492,11 +467,10 @@ export function Board() {
 
               target_ctx.setFillStyle('black');
               target_ctx.setLineWidth(2);
-              target_ctx.setFontSize(target_stone_size + 2);
+              target_ctx.setFontSize(stone_size + 2);
               target_ctx.setTextBaseline('middle');
               target_ctx.setTextAlign('center');
 
-              console.log('generateimg', i, j, node.note);
               switch (node.note) {
                 default: target_ctx.fillText(node.note, pos_x, pos_y);
               }

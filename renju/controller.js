@@ -148,6 +148,9 @@ export function RenjuController() {
       --cur_index;
       board.removeStone(move_list[cur_index].x, move_list[cur_index].y);
       
+      if (show_num == 1) {
+        
+      }
     },
 
     goNext: function() {
@@ -162,13 +165,21 @@ export function RenjuController() {
         } else {
           switch (show_num) {
             case 0:
-
+              board.addStone(move_list[cur_index].x, move_list[cur_index].y, stone.color, "" + stone.num);
             break;
             case 1:
+              var to_remove_index = cur_index - 6;
+              if (to_remove_index >= 0) {
+                var old_stone = move_list[to_remove_index];
+                var tmp = stones[old_stone.x][old_stone.y];
+                board.removeStone(old_stone.x, old_stone.y, false);
+                board.addStone(old_stone.x, old_stone.y, tmp.color, tmp.note);
+              }
 
+              board.addStone(move_list[cur_index].x, move_list[cur_index].y, stone.color, "" + stone.num);
             break;
             case 2:
-
+              board.addStone(move_list[cur_index].x, move_list[cur_index].y, stone.color, "");
             break;
           }
         }

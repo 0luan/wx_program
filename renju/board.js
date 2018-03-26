@@ -62,7 +62,7 @@ export function Board() {
         ctx.setLineWidth(1);
         ctx.setStrokeStyle('black');
         ctx.beginPath();
-        ctx.arc(x, y, 4, 0, 2 * Math.PI);
+        ctx.arc(x, y, stone_size / 4, 0, 2 * Math.PI);
         ctx.stroke();
         ctx.setFillStyle('black');
         ctx.fill();
@@ -356,6 +356,9 @@ export function Board() {
 
     removeStone: function(x, y, refresh = true) {
       console.log('board.removeStone', x, y);
+      node_data[x][y] = null;
+
+      var pos_x = x, pos_y = y;
       
       x = (x + 0.5) * unit_size;
       y = (y + 0.5) * unit_size;
@@ -371,6 +374,18 @@ export function Board() {
       ctx.moveTo(x + 0.5 * unit_size, y);
       ctx.lineTo(x + 0.5 * unit_size, y + unit_size);
       ctx.stroke();
+
+      if (this.isStarPos(pos_x, pos_y)) {
+        var starx = (pos_x + 1) * unit_size;
+        var stary = (pos_y + 1) * unit_size;
+        ctx.setLineWidth(1);
+        ctx.setStrokeStyle('black');
+        ctx.beginPath();
+        ctx.arc(starx, stary, stone_size / 4, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.setFillStyle('black');
+        ctx.fill();
+      }
 
       if (refresh)
         ctx.draw(true);
@@ -389,7 +404,17 @@ export function Board() {
 
         x = (x + 1) * unit_size;
         y = (y + 1) * unit_size;
-        //ctx.clearRect(x - 0.5 * unit_size, y - 0.5 * unit_size, unit_size, unit_size);
+        ctx.clearRect(x - 0.5 * unit_size, y - 0.5 * unit_size, unit_size, unit_size);
+
+        ctx.setLineWidth(1);
+        ctx.setStrokeStyle('black');
+        ctx.moveTo(x - 0.5 * unit_size, y);
+        ctx.lineTo(x + 0.5 * unit_size, y);
+        ctx.stroke();
+
+        ctx.moveTo(x, y + 0.5 * unit_size);
+        ctx.lineTo(x, y - 0.5 * unit_size);
+        ctx.stroke();
 
         ctx.setFillStyle('black');
         ctx.setLineWidth(2);
@@ -522,6 +547,21 @@ export function Board() {
               }
             }
           }
+        }
+      }
+
+      for (var i = 0; i != star_pos.length; ++i) {
+        var tmp_x = star_pos[i].x, tmp_y = star_pos[i].y;
+        if (!node_data[tmp_x][tmp_y]) {
+          var starx = (tmp_x + 1) * target_unit_size;
+          var stary = (tmp_y + 1) * target_unit_size;
+          target_ctx.setLineWidth(1);
+          target_ctx.setStrokeStyle('black');
+          target_ctx.beginPath();
+          target_ctx.arc(starx, stary, target_stone_size / 4, 0, 2 * Math.PI);
+          target_ctx.stroke();
+          target_ctx.setFillStyle('black');
+          target_ctx.fill();
         }
       }
 

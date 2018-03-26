@@ -70,10 +70,10 @@
 
   <view id="control-panel">
     <view id="read-ctl-panel" class="ctl-btn-container" wx:hidden="{{selected_point}}">
-      <view class="control-btn" id="go-begin" catchtap="onGoBeginClick"><image class='btn-icon' src='../images/up.png'></image></view>
-      <view class="control-btn" id="go-prev" catchtap="onGoPrevClick"><image class='btn-icon' src='../images/up.png'></image></view>
-      <view class="control-btn" id="go-next" catchtap="onGoNextClick"><image class='btn-icon' src='../images/up.png'></image></view>
-      <view class="control-btn" id="go-end" catchtap="onGoEndClick"><image class='btn-icon' src='../images/up.png'></image></view>
+      <view class="control-btn" id="go-begin" catchtap="onGoBeginClick"><image class='btn-icon' src='../images/begin.png'></image></view>
+      <view class="control-btn" id="go-prev" catchtap="onGoPrevClick"><image class='btn-icon' src='../images/prev.png'></image></view>
+      <view class="control-btn" id="go-next" catchtap="onGoNextClick"><image class='btn-icon' src='../images/next.png'></image></view>
+      <view class="control-btn" id="go-end" catchtap="onGoEndClick"><image class='btn-icon' src='../images/end.png'></image></view>
     </view>
 
     <view id="write-ctl-panel" class="ctl-btn-container" wx:hidden="{{!selected_point}}">

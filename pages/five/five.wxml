@@ -41,8 +41,8 @@
         <radio value="{{item.value}}" checked="{{item.checked}}"/>{{item.name}}
       </label>
       <label class="note-custom-label">
-        <radio value="{{item.name}}" checked="{{item.checked}}"/>
-        <input id="note_input" maxlength="1" />
+        <radio value="custom" />自定义：
+        <input id="note_input" bindinput="onNoteInput" maxlength="1" />
       </label>
     </radio-group>
     <view class="modal-footer">

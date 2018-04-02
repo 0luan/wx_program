@@ -1,4 +1,10 @@
 // pages/go/go.js
+import {Board} from "../../go/board.js"
+import {GoJudger} from "../../go/go_judger.js"
+
+var b = Board();
+var r = GoJudger();
+
 Page({
 
   /**
@@ -12,7 +18,7 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-  
+    b.init();
   },
 
   /**

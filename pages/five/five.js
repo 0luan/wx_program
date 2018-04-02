@@ -11,6 +11,7 @@ const SHOW_NONE_NUM = 2; // 不显示数字
 
 var setting_cache;
 var selected_note;
+var custom_note;
 
 Page({
   /**
@@ -149,10 +150,15 @@ Page({
   onSelectedNoteChanged: function(e) {
     selected_note = e.detail.value;
   },
+  onNoteInput: function(e) {
+    custom_note = e.detail.value;
+  },
   onNoteConfirm: function() {
     var pt = this.b.getSelectedPoint();
     if (selected_note == 'none') {
       this.controller.removeText(pt.x, pt.y);
+    } else if (selected_note == 'custom') {
+      this.controller.addText(pt.x, pt.y, custom_note);
     } else {
       this.controller.addText(pt.x, pt.y, selected_note);
     }

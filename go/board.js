@@ -1,5 +1,5 @@
 export function Board() {
-  const LINE_COUNT = 15;
+  const LINE_COUNT = 7;
   var width, height;
   var unit_size;  // 格子大小
   var stone_size; // 棋子大小

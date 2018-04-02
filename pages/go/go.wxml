@@ -1,2 +1,3 @@
-<!--pages/go/go.wxml-->
-<text>pages/go/go.wxml</text>
+<view>
+    <canvas canvas-id="board" hidden="{{showPreview||showSettings||showNoteDlg}}" style="width:100%;height:750rpx;" bindtap="onBoardClick"></canvas>
+</view>

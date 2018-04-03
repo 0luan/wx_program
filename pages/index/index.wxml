@@ -1,3 +1,8 @@
 <view>
     <canvas canvas-id="board" hidden="{{showPreview||showSettings||showNoteDlg}}" style="width:100%;height:750rpx;" bindtap="onBoardClick"></canvas>
+    <view id="control-panel">
+      <view id="prev_move" catchtap="onPrevMove">查看上一手</view>
+      <view id="next_move" catchtap="onNextMove">查看下一手</view>
+    </view>
+    <view id="text-content">这是解说：{{content_text}}</view>
 </view>

@@ -1,6 +1,6 @@
 // -1－空位, 0－白子, 1－黑子
 export function GoJudger() {
-  const LINE_COUNT = 7;
+  const LINE_COUNT = 9;
   var stones  = [];
 
   return {
@@ -74,6 +74,9 @@ export function GoJudger() {
       console.log(deads);
       return deads;
     },
+    removeStone: function(x, y) {
+      stones[x][y] = -1;
+    },
 
     // 提掉该坐标所属的一整块棋
     removeBlock: function (x, y, deads, checked) {
@@ -86,7 +89,7 @@ export function GoJudger() {
       if (checked_pos[x][y] != -1) return;
 
       console.log('remove block push x:', x, ' y:', y);
-      deads.push({ "x": x, "y": y });
+      deads.push({ "x": x, "y": y, "color":color });
       stones[x][y] = -1;
       checked_pos[x][y] = 1;
 

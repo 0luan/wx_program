@@ -1,5 +1,5 @@
 export function Board() {
-  const LINE_COUNT = 7;
+  var LINE_COUNT = 7;
   var width, height;
   var unit_size;  // 格子大小
   var stone_size; // 棋子大小
@@ -16,8 +16,9 @@ export function Board() {
   var show_coordinate = true; // 显示坐标
 
   return {
-    init: function(id) {
+    init: function(line_count, id) {
       console.log("board.init");
+      LINE_COUNT = line_count;
       width = wx.getSystemInfoSync().windowWidth;
       height = width;
       unit_size = width / (LINE_COUNT+1);

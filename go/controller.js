@@ -1,6 +1,8 @@
 import {Board} from "board.js"
 import {GoJudger} from "go_judger.js"
 
+var cache = {};
+
 export function GoController() {
   var board;
   var judger;
@@ -23,8 +25,13 @@ export function GoController() {
   var predict_moves = {}; // 预测用户点击
   var cur_predict_tree;
 
+  var try_mode_restore_storage = {};
+
 
   return {
+    ANSWER_MODE: ANSWER_MODE,
+    BATTLE_MODE: BATTLE_MODE,
+    TRY_MODE: TRY_MODE,
     init: function(board_size, init, answer, predict) {
       board = Board();
       board.init(9, "board");
@@ -58,16 +65,28 @@ export function GoController() {
 
 
 
-    // 进入试下模式
+    // 试下模式
     enterTryMode: function() {
-
+      try_mode_restore_storage.mode = mode;
+      try_mode_restore_storage.dead_moves_stack = dead_moves_stack;
+      try_mode_restore_storage.board_state = board.saveState();
+      try_mode_restore_storage.judger_state = judger.saveState();
+      mode = TRY_MODE;
     },
+    exitTryMode: function() {
+      board.restoreState(try_mode_restore_storage.board_state);
+      judger.restoreState(try_mode_restore_storage.judger_state);
+      dead_moves_stack = try_mode_restore_storage.dead_moves_stack;
+      mode = try_mode_restore_storage.mode;
+    },
+
     //wx.showModal({title:'test',content:'content',showCancel:false})
     onBoardClick: function(x, y) {
       switch (mode) {
+        // 答题 
         case BATTLE_MODE:
           if (!cur_predict_tree) return;
-          
+
           let index = String.fromCharCode(65+x) + (y+1);
           console.log(index, cur_predict_tree);
           if (cur_predict_tree[index]) {
@@ -88,6 +107,11 @@ export function GoController() {
           } else {
             wx.showModal({ title: 'test', content: "wrong answer", showCancel: false });
           }
+        break;
+
+        // 试下
+        case TRY_MODE:
+
         break;
       }
     },

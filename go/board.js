@@ -75,8 +75,32 @@ export function Board() {
       ctx.draw();
     },
 
+    saveState: function() {
+      let tmp = [];
+      for (let i = 0; i != LINE_COUNT; ++i)
+        for (let j = 0; j != LINE_COUNT; ++j)
+          tmp[i][j] = node_data[i][j];
+      return tmp;
+    },
+    restoreState: function(s) {
+      this.reset();
+      node_data = s;
+      for (let i = 0; i != LINE_COUNT; ++i) {
+        for (let j = 0; j != LINE_COUNT; ++j) {
+          let node = node_data[i][j];
+          if (node) {
+            if (node.color != -1)
+              this.addStone(i, j, node.color, node.note, false);
+            else
+              this.addText(i, j, node.note, false);
+          }
+        }
+      }
+      ctx.draw(true);
+    },
+
     reset: function() {
-      this.init(canvas_id);
+      this.init(LINE_COUNT, canvas_id);
     },
 
     refresh: function() {
@@ -353,7 +377,7 @@ export function Board() {
 
     },
 
-    addText: function(x, y, text) {
+    addText: function(x, y, text, refresh = true) {
       selected_x = -1;
       selected_y = -1;
 
@@ -377,8 +401,8 @@ export function Board() {
           default: ctx.fillText(text, x, y);
         }
         
-
-        ctx.draw(true);
+        if (refresh)
+          ctx.draw(true);
       }
     },
 

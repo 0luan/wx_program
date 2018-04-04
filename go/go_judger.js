@@ -16,6 +16,17 @@ export function GoJudger() {
       return s;
     },
 
+    saveState: function() {
+      let tmp = [];
+      for (let i = 0; i != LINE_COUNT; ++i)
+        for (let j = 0; j != LINE_COUNT; ++j)
+          tmp[i][j] = stones[i][j];
+      return tmp;
+    },
+    restoreState: function(s) {
+      stones = s;
+    },
+
     /* 如果合法，返回被吃棋子坐标数组 */
     /* 如果不合法，返回false */
     addStone: function (x, y, color) {

@@ -71,6 +71,10 @@ Page({
 
   },
 
+  updateMode: function() {
+
+  },
+
   onBoardClick: function (e) {
     console.log(e);
     let pt = controller.pointToXY(e.detail.x - e.target.offsetLeft, e.detail.y - e.target.offsetTop);
@@ -98,10 +102,14 @@ Page({
     if (board_info) {
       console.log(board_info.predict);
       controller.init(board_info.board_size, board_info.stone, board_info.moves, board_info.predict);
+      this.setData({
+        "enable_answer_mode": !!board_info.moves,
+        "enable_battle_mode": !!board_info.predict,
+      });
     }
     this.setData({
       "content_text":content.content
-    })
+    });
   },
 
   onTryMove: function() {

@@ -1,1 +1,21 @@
-/* pages/index/index.wxss */
+/**index.wxss**/
+#setting-frame {
+  position: fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background-color:#fff;
+
+}
+.radio {
+  display: inline-block;
+}
+
+picker-view {
+  width: 100%;
+}
+
+.picker-column-style {
+  background-color:red;
+}

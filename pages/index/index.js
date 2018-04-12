@@ -1,131 +1,301 @@
-// pages/go/go.js
-import { GoController } from "../../go/controller.js"
-import { GoJudger } from "../../go/go_judger.js"
+const DUMIAO_MODE = 0;
+const JIAMIAO_MODE = 1;
+const KGS_MODE = 2;
 
-var controller = GoController();
+var mode = DUMIAO_MODE;
 
-var content = '{"type":"normal","content":"吃子技巧－枷如何吃掉白子","board":{"predict":{"E3":{"respond":{"x":3,"y":2,"text":"好像有点厉害哦"},"next":{"D2":{"respond":{"x":4,"y":3,"text":"看来我要不行了"},"next":{"F4":{"respond":{"x":-1,"y":-1,"text":"恭喜你答对了"}}}}}}},"moves":[{"x":4,"y":2,"color":1,"text":"简单一罩，白棋就跑不了"},{"x":3,"y":2,"color":0,"text":"不管怎么样，白棋都是无法冲出去的"},{"x":3,"y":1,"color":1,"text":"黑棋简单挡住"},{"x":4,"y":3,"color":0,"text":"同样，这边也是冲不出去的"},{"x":5,"y":3,"color":1,"text":"只能被黑棋吃掉"}],"board":{"size":7,"type":"all"},"stone":{"black":[{"x":2,"y":2},{"x":2,"y":3},{"x":3,"y":4},{"x":4,"y":4}],"white":[{"x":3,"y":3},{"x":5,"y":2}]}}}';
-var cur_page_index = 0;
+
+var black = {
+  basic_time_ms:10000,
+  variation_time_ms:10000,
+  cur_time_ms:10000,
+  basic_time_used_up:false,
+  moves_num:1,
+  moves_total:10,
+  timeout_count_remain:3,
+  sound:[false, false, false, false, false, false, false, false, false, false]
+};
+var white = {
+  basic_time_ms: 10000,
+  variation_time_ms: 10000,
+  cur_time_ms: 10000,
+  basic_time_used_up: false,
+  moves_num: 1,
+  moves_total: 10,
+  timeout_count_remain: 3,
+  sound: [false, false, false, false, false, false, false, false, false, false]
+};
+
+var cur_color = 1;
+var last_time;
+var timer;
+var __mode_range = ["读秒规则","加秒规则","定时限步规则"];
+var __minute_range = [];
+var __second_range = [];
+var __count_range = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+for (let i = 0; i != 61; ++i) {
+  __minute_range.push(i);
+  __second_range.push(i);
+}
+
+var wav_info = {};
+var setting_cache = {};
+
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
-
+    showSettings: true,
+    minute_range: __minute_range,
+    second_range: __second_range, 
+    count_range: __count_range,
+  },
+  onLoad: function () {
+    this.loadAudio();
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad: function (options) {
-    this.loadContent(content);
+  loadAudio: function() {
+    for (let i = 1; i != 11; ++i)
+    wx.downloadFile({
+      url: "https://res-1256473329.cos.ap-guangzhou.myqcloud.com/" + i + ".wav",
+      success(e) {
+        wav_info[i-1] = e.tempFilePath;
+        console.log(e);
+      }
+    })
   },
 
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload: function () {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh: function () {
-
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom: function () {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage: function () {
-
-  },
-
-  updateMode: function() {
-
-  },
-
-  onBoardClick: function (e) {
+  bindChange1: function(e) {
     console.log(e);
-    let pt = controller.pointToXY(e.detail.x - e.target.offsetLeft, e.detail.y - e.target.offsetTop);
-    console.log(pt);
-    
-    // let result = r.addStone(pt.x, pt.y, color);
-    // console.log(result);
-    // if (result === false) {
-    //   console.log('add stone error');
-    // } else {
-    //   b.addStone(pt.x, pt.y, color, "");
-    //   for (let i = 0; i != result.length; ++i) {
-    //     b.removeStone(result[i].x, result[i].y);
-    //   }
-    // }
-    // if (color == 0) color = 1;
-    // else color = 0;
-    controller.onBoardClick(pt.x, pt.y);
+    setting_cache.dumiao_setting = e.detail.value;
+  },
+  onSettingCancel: function() {
+    this.setData({ showSettings:false });
+    setting_cache = {};
+  },
+  onSettingConfirm: function() {
+    this.setData({ showSettings: false });
+    let m = setting_cache.dumiao_setting[0];
+    let s = setting_cache.dumiao_setting[1];
+    let c = setting_cache.dumiao_setting[2];
+    black = {
+      basic_time_ms: m * 60000,
+      variation_time_ms: s * 1000,
+      cur_time_ms: m*60000,
+      basic_time_used_up: false,
+      moves_num: 1,
+      moves_total: 10,
+      timeout_count_remain: c,
+      sound: [false, false, false, false, false, false, false, false, false, false]
+    };
+    white = {
+      basic_time_ms: m * 60000,
+      variation_time_ms: s * 1000,
+      cur_time_ms: m * 60000,
+      basic_time_used_up: false,
+      moves_num: 1,
+      moves_total: 10,
+      timeout_count_remain: c,
+      sound: [false, false, false, false, false, false, false, false, false, false]
+    };
+    this.updateInfo(0);
+    this.updateInfo(1);
   },
 
-  loadContent: function(content) {
-    content = JSON.parse(content);
-    var content_type = content.type;
-    var board_info = content.board;
-    if (board_info) {
-      console.log(board_info.predict);
-      controller.init(board_info.board_size, board_info.stone, board_info.moves, board_info.predict);
+  start: function() {
+    last_time = new Date();
+    // this.setData({
+    //   black_time_str: formatTimeMs(cur_time_ms_black),
+    //   white_time_str: formatTimeMs(cur_time_ms_white),
+    // });
+    if (timer) clearInterval(timer);
+    timer = setInterval(this.onTimer, 100);
+  },
+
+  pause: function() {
+
+  },
+
+  checkColor: function(color, diff) {
+    if (mode == DUMIAO_MODE) {
+      color.cur_time_ms -= diff;
+      if (color.cur_time_ms <= 0) {
+        color.cur_time_ms = 0;
+        if (!color.basic_time_used_up && color.variation_time_ms > 0) {
+          color.basic_time_used_up = true;
+          color.cur_time_ms = color.variation_time_ms;
+          // TODO play sound
+        } else {
+          if (color.timeout_count_remain-- == 0) {
+            // TODO timeout, gameover
+          } else {
+            color.cur_time_ms = color.variation_time_ms;
+          }
+        }
+      } else {
+        if (color.basic_time_used_up) {
+          var sec = parseInt(color.cur_time_ms/1000);
+          if (sec <= 10) {
+            if (!color.sound[sec]) {
+              // TODO play sound
+              console.log('count ', sec);
+              const innerAudioContext = wx.createInnerAudioContext()
+              innerAudioContext.autoplay = true
+              innerAudioContext.src = wav_info[0]
+              innerAudioContext.onPlay(() => {
+                console.log('开始播放')
+              })
+              innerAudioContext.onError((res) => {
+                console.log(res.errMsg)
+                console.log(res.errCode)
+              })
+              color.sound[sec] = true;
+            }
+          }
+        }
+      }
+    }   // END DUMIAO_MODE
+    else if (mode == JIAMIAO_MODE) {
+      color.cur_time_ms -= diff;
+      if (color.cur_time_ms <= 0) {
+        color.cur_time_ms = 0;
+        // TODO game over play sound
+        console.log('game over timeout');
+      } else {
+        var sec = parseInt(color.cur_time_ms / 1000);
+        if (sec <= 10) {
+          if (!color.sound[sec]) {
+            // TODO play sound
+            console.log('count ', sec);
+            color.sound[sec] = true;
+          }
+        }
+      }
+    }   // END JIAMIAO MODE
+    else if (mode == KGS_MODE) {
+      color.cur_time_ms -= diff;
+      if (color.cur_time_ms <= 0) {
+        if (color.basic_time_used_up) {
+          // TODO game over play sound
+          console.log('game over timeout');
+        } else {
+          color.cur_time_ms = color.variation_time_ms;
+          color.basic_time_used_up = true;
+          color.moves_num = 1;
+        }
+      }
+    }
+
+    this.updateInfo(cur_color);
+  },
+
+  updateInfo: function(color) {
+    var state_str;
+    switch (mode) {
+      case DUMIAO_MODE:
+        if (color == 0)
+          state_str = "" + white.timeout_count_remain + " times remain/" + (white.variation_time_ms/1000) + "s";
+        else
+          state_str = "" + black.timeout_count_remain + " times remain/" + (black.variation_time_ms / 1000) + "s";
+      break;
+      case JIAMIAO_MODE:
+          state_str = "";
+      break;
+      case KGS_MODE:
+        if (color == 0) {
+          if (white.basic_time_used_up)
+            state_str = "" + white.moves_num;
+          else
+            state_str = "0";
+          state_str += "/" + white.moves_total + " " + (white.variation_time_ms / 1000) + "s";
+        }
+        else {
+          if (black.basic_time_used_up)
+            state_str = "" + black.moves_num;
+          else
+            state_str = "0";
+          state_str += "/" + black.moves_total + " " + (black.variation_time_ms / 1000) + "s";
+        }
+      break;
+    }
+
+    if (color == 0) {
+      var t = new Date(white.cur_time_ms);
       this.setData({
-        "enable_answer_mode": !!board_info.moves,
-        "enable_battle_mode": !!board_info.predict,
+        white_time_hour:t.getUTCHours(),
+        white_time_min:t.getUTCMinutes(),
+        white_time_sec:t.getUTCSeconds(),
+        white_time_ms:t.getUTCMilliseconds(),
+        white_info_str:state_str
+      });
+    } else {
+      var t = new Date(black.cur_time_ms);
+      this.setData({
+        black_time_hour: t.getUTCHours(),
+        black_time_min: t.getUTCMinutes(),
+        black_time_sec: t.getUTCSeconds(),
+        black_time_ms: t.getUTCMilliseconds(),
+        black_info_str:state_str
       });
     }
-    this.setData({
-      "content_text":content.content
-    });
   },
 
-  onTryMove: function() {
+  onTimer: function() {
+    var tmp = new Date();
+    var diff = tmp - last_time;
+    last_time = tmp;
+    this.checkColor(cur_color==1?black:white, diff);
+    //console.log(black.cur_time_ms, white.cur_time_ms);
+  },
+
+  onTap: function() {
+    switch (mode) {
+      case DUMIAO_MODE:
+        if (cur_color == 1) {
+          black.sound = [false, false, false, false, false, false, false, false, false, false];
+          if (black.basic_time_used_up)
+            black.cur_time_ms = black.variation_time_ms;
+        } else {
+          white.sound = [false, false, false, false, false, false, false, false, false, false];
+          if (white.basic_time_used_up)
+            white.cur_time_ms = white.variation_time_ms;
+        }
+      break;
+
+      case JIAMIAO_MODE:
+        if (cur_color == 1) {
+          black.cur_time_ms += black.variation_time_ms;
+        } else {
+          white.cur_time_ms += white.variation_time_ms;
+        }
+      break;
+
+      case KGS_MODE:
+        if (cur_color == 1) {
+          if (black.basic_time_used_up) {
+            if (++black.moves_num > black.moves_total) {
+              black.moves_num = 1;
+              black.cur_time_ms = black.variation_time_ms;
+            }
+          }
+        } else {
+          if (white.basic_time_used_up) {
+            if (++white.moves_num > white.moves_total) {
+              white.moves_num = 1;
+              white.cur_time_ms = white.variation_time_ms;
+            }
+          }
+        }
+      break;
+    }
+    this.updateInfo();
+    if (cur_color == 1) cur_color = 0;
+    else cur_color = 1;
+
+    this.start();
 
   },
 
-  onPrevMove: function() {
-    let text = controller.prevMove();
-    this.setData({
-      "content_text": text == null ? JSON.parse(content).content : text,
-    });
-  }, 
-  onNextMove: function() {
-    let text = controller.nextMove();
-    this.setData({
-      "content_text": text == null ? content.content : text,
-    });
+  bindBasicTimeChange: function(e) {
+    console.log(e);
   }
-});
+
+})

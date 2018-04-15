@@ -38,9 +38,10 @@ for (let i = 0; i != 61; ++i) {
   __second_range.push(i);
 }
 
-var wav_info = {};
+var wav_info = [];
+var timeout_wav_info = [];
 var setting_cache = {};
-
+const innerAudioContext = wx.createInnerAudioContext();
 Page({
   data: {
     showSettings: true,
@@ -53,14 +54,22 @@ Page({
   },
 
   loadAudio: function() {
-    for (let i = 1; i != 11; ++i)
-    wx.downloadFile({
-      url: "https://res-1256473329.cos.ap-guangzhou.myqcloud.com/" + i + ".wav",
-      success(e) {
-        wav_info[i-1] = e.tempFilePath;
-        console.log(e);
-      }
-    })
+    for (let i = 1; i != 11; ++i) {
+      wx.downloadFile({
+        url: "https://res-1256473329.cos.ap-guangzhou.myqcloud.com/" + i + ".wav",
+        success(e) {
+          wav_info[i-1] = e.tempFilePath;
+          console.log(e);
+        }
+      })
+      wx.downloadFile({
+        url: "https://res-1256473329.cos.ap-guangzhou.myqcloud.com/" + i + "_t_remain.wav",
+        success(e) {
+          timeout_wav_info[i - 1] = e.tempFilePath;
+          console.log(e);
+        }
+      })
+    }
   },
 
   bindChange1: function(e) {
@@ -101,6 +110,9 @@ Page({
   },
 
   start: function() {
+    wx.setKeepScreenOn({
+      keepScreenOn: true,
+    });
     last_time = new Date();
     // this.setData({
     //   black_time_str: formatTimeMs(cur_time_ms_black),
@@ -111,7 +123,15 @@ Page({
   },
 
   pause: function() {
+    wx.setKeepScreenOn({
+      keepScreenOn: false,
+    });
+  },
 
+  stop: function() {
+    wx.setKeepScreenOn({
+      keepScreenOn: false,
+    });
   },
 
   checkColor: function(color, diff) {
@@ -126,20 +146,32 @@ Page({
         } else {
           if (color.timeout_count_remain-- == 0) {
             // TODO timeout, gameover
+            clearInterval(timer);
           } else {
+            innerAudioContext.autoplay = true
+            innerAudioContext.src = timeout_wav_info[color.timeout_count_remain]
+            innerAudioContext.onPlay(() => {
+              console.log('开始播放')
+            })
+            innerAudioContext.onError((res) => {
+              console.log(res.errMsg)
+              console.log(res.errCode)
+            })
+            
             color.cur_time_ms = color.variation_time_ms;
+            color.sound = [false, false, false, false, false, false, false, false, false, false];
           }
         }
       } else {
         if (color.basic_time_used_up) {
-          var sec = parseInt(color.cur_time_ms/1000);
+          var sec = color==black?this.data.black_time_sec:this.data.white_time_sec;
           if (sec <= 10) {
             if (!color.sound[sec]) {
               // TODO play sound
               console.log('count ', sec);
-              const innerAudioContext = wx.createInnerAudioContext()
+              
               innerAudioContext.autoplay = true
-              innerAudioContext.src = wav_info[0]
+              innerAudioContext.src = wav_info[sec-1]
               innerAudioContext.onPlay(() => {
                 console.log('开始播放')
               })
@@ -222,8 +254,8 @@ Page({
       this.setData({
         white_time_hour:t.getUTCHours(),
         white_time_min:t.getUTCMinutes(),
-        white_time_sec:t.getUTCSeconds(),
-        white_time_ms:t.getUTCMilliseconds(),
+        white_time_sec: t.getUTCMilliseconds() == 0 ? t.getUTCSeconds() : t.getUTCSeconds() + 1,
+        white_time_ms: t.getUTCMilliseconds(),
         white_info_str:state_str
       });
     } else {
@@ -231,7 +263,7 @@ Page({
       this.setData({
         black_time_hour: t.getUTCHours(),
         black_time_min: t.getUTCMinutes(),
-        black_time_sec: t.getUTCSeconds(),
+        black_time_sec: t.getUTCMilliseconds() == 0 ? t.getUTCSeconds() : t.getUTCSeconds() + 1,
         black_time_ms: t.getUTCMilliseconds(),
         black_info_str:state_str
       });

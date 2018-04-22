@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+	<script src="jquery-3.3.1.min.js"></script>
+	<style type="text/css">
+	* { margin: 0; padding: 0; }
+	</style>
+</head>
+<body>
+	<div>
+		<div style="width: 800px; height: 800px; background: url('bg.png')" />
+		<canvas id="board" width="800px" height="800px" />
+	</div>
+	
+	<p>
+	<input type="radio" name="mode_sel" value="0" checked="checked"/>录入棋子
+	<input type="radio" name="mode_sel" value="1" />录入答案
+	<input type="radio" name="mode_sel" value="2" />录入变化
+	</p>
+	<p>	
+	<input type="radio" name="color_sel" value="1" checked="checked"/>黑棋
+	<input type="radio" name="color_sel" value="0" />白棋
+	</p>
+	
+	<div id="predicts">
+		<div class="predict_move" move="e5">
+			<span class="move1">e5</span><span class="move2">b5</span><span class="text">test</span>
+			<div class="next">
+			
+			</div>
+		</div>
+	</div>
+	
+	
+	解说：<input type="text" id="text" />
+	<a href="#">录入变化黑先</a>
+	<a href="#">录入变化白先</a>
+	</div>
+	
+	<div id="result">
+
+	</div>
+	
+<script>
+result = {};
+unit_size = 40;
+stone_size = 18;
+window.onload=function() {
+	result.title = "title";
+	result.content = "content";
+	result.board = {};
+	result.board.answer = [];
+	result.board.stone = {black:[], white:[]};
+
+	var c=document.getElementById("board");
+	var ctx=c.getContext("2d");
+	$('#predicts').data({});
+	
+	$("#board").click(function(event){
+		var mode = parseInt($('input:radio[name="mode_sel"]:checked').val());	
+
+        //标准的获取鼠标点击相对于canvas画布的坐标公式
+        var x = event.pageX - c.getBoundingClientRect().left;
+        var y = event.pageY - c.getBoundingClientRect().top;
+		var color = $('input:radio[name="color_sel"]:checked').val();		
+		x = parseInt((x-20) / 40);
+		y = parseInt((y-20) / 40);
+		switch (mode) {
+			case 0:
+				if (color == 0) 
+					result.board.stone.white.push({"x":x, "y":y});
+				else
+					result.board.stone.black.push({"x":x, "y":y});
+			break;
+			case 1:
+				var text = $('#text').val();
+				result.board.answer.push({"x":x, "y":y, "color":color, "text":text});
+				if (color == 0)
+					$('input[name="color_sel"]')[0].checked = true;
+				else
+					$('input[name="color_sel"]')[1].checked = true;
+			break;
+			case 2:
+				var cur = $('.predict_move .selected').children('.next')[0];
+				if (!cur) {
+					var tmp = $('<div class="predict_move" move="e5"><span class="move1">e5</span><span class="move2">b5</span><span class="text">test</span><div class="next"></div></div>');
+					cur = tmp.children('.next')[0];
+				} else {
+				
+				}	
+				
+			break;
+		}
+
+
+        console.log(x, y);
+		addStone(x, y, color, '');
+
+		$('#result').text(JSON.stringify(result));
+    });
+	
+	addStone = function(x, y, color, note) {
+      x = (x+1)*unit_size+2;
+      y = (y+1)*unit_size+2;
+      console.log(x, y);
+
+      ctx.lineWidth=1;
+      ctx.strokeStyle = '#ffffff';
+
+	  ctx.fillStyle = color==1?'black':'white';
+      ctx.beginPath();
+      ctx.arc(x, y, stone_size, 0, 2*Math.PI);
+      ctx.fill();
+      ctx.fill();
+	  ctx.closePath();
+
+      if (note) {
+        ctx.setFillStyle(color==1?'white':'black');
+        ctx.lineWidth=2;
+        ctx.setFontSize(stone_size + 2);
+        ctx.setTextBaseline('middle');
+        ctx.setTextAlign('center');
+        ctx.fillText(note, x, y);
+      }
+    }
+	
+	addBranch = function(pos, 
+}
+</script>
+</body>
+</html>

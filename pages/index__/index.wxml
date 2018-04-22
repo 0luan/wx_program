@@ -1,0 +1,39 @@
+<!--index.wxml-->
+<view class="container">
+
+  <view>black time: {{black_time_hour}}:{{black_time_min}}:{{black_time_sec}}</view>
+  <view>black info: {{black_info_str}}</view>
+  <view>white time: {{white_time_hour}}:{{white_time_min}}:{{white_time_sec}}</view>
+  <view>white info: {{white_info_str}}</view>
+
+  <view style="width:100%;height:100px;background-color:red" catchtap="onTap"></view>
+
+  <view wx:if="{{showStartupPage}}" id="startup-frame">
+
+  </view>
+
+  <view hidden="{{!showSettings}}" id="setting-frame">
+
+    <view style="width:100%">
+      <view style="display:inline-block; width:250rpx; text-align: center">基本用时</view>
+      <view style="display:inline-block; width:250rpx; text-align: center">读秒</view>
+      <view style="display:inline-block; width:250rpx; text-align: center">读秒次数</view>
+    </view>
+    <picker-view indicator-style="height: 50px;" style="background:white, width: 100%; height: 150px;" value="{{value}}" bindchange="bindChange1">
+      <picker-view-column>
+        <view wx:for="{{minute_range}}" style="line-height: 50px; text-align: center">{{item}}分</view>
+      </picker-view-column>
+      <picker-view-column>
+        <view wx:for="{{second_range}}" style="line-height: 50px; text-align: center">{{item}}秒</view>
+      </picker-view-column>
+      <picker-view-column>
+        <view wx:for="{{count_range}}" style="line-height: 50px; text-align: center">{{item}}次</view>
+      </picker-view-column>
+    </picker-view>
+
+    <view style="position:fixed; bottom:0; width:100%;">
+      <view style="display: inline-block; line-height:40px; text-align:center; height: 40px; width:50%; background-color:red; color:#fff" bindtap="onSettingCancel">取消</view>
+      <view style="display: inline-block; line-height:40px; text-align:center; height: 40px; width:50%; background-color:green; color:#fff" bindtap="onSettingConfirm">确定</view>
+    </view>
+  </view>
+</view>

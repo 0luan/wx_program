@@ -1,6 +1,6 @@
 // -1－空位, 0－白子, 1－黑子
 export function GoJudger() {
-  const LINE_COUNT = 9;
+  const LINE_COUNT = 19;
   var stones  = [];
 
   return {
@@ -11,7 +11,7 @@ export function GoJudger() {
     getEmptyStones: function() {
       var s = [];
       for (let i = 0; i != LINE_COUNT; ++i) {
-        s.push([-1, -1, -1, -1, -1, -1, -1]);
+        s.push([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]);
       }
       return s;
     },

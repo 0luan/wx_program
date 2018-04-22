@@ -34,7 +34,7 @@ export function GoController() {
     TRY_MODE: TRY_MODE,
     init: function(board_size, init, answer, predict) {
       board = Board();
-      board.init(9, "board");
+      board.init(19, "board");
 
       judger = GoJudger();
       judger.init();
@@ -65,20 +65,20 @@ export function GoController() {
 
 
 
-    // 试下模式
-    enterTryMode: function() {
-      try_mode_restore_storage.mode = mode;
-      try_mode_restore_storage.dead_moves_stack = dead_moves_stack;
-      try_mode_restore_storage.board_state = board.saveState();
-      try_mode_restore_storage.judger_state = judger.saveState();
-      mode = TRY_MODE;
-    },
-    exitTryMode: function() {
-      board.restoreState(try_mode_restore_storage.board_state);
-      judger.restoreState(try_mode_restore_storage.judger_state);
-      dead_moves_stack = try_mode_restore_storage.dead_moves_stack;
-      mode = try_mode_restore_storage.mode;
-    },
+    // // 试下模式
+    // enterTryMode: function() {
+    //   try_mode_restore_storage.mode = mode;
+    //   try_mode_restore_storage.dead_moves_stack = dead_moves_stack;
+    //   try_mode_restore_storage.board_state = board.saveState();
+    //   try_mode_restore_storage.judger_state = judger.saveState();
+    //   mode = TRY_MODE;
+    // },
+    // exitTryMode: function() {
+    //   board.restoreState(try_mode_restore_storage.board_state);
+    //   judger.restoreState(try_mode_restore_storage.judger_state);
+    //   dead_moves_stack = try_mode_restore_storage.dead_moves_stack;
+    //   mode = try_mode_restore_storage.mode;
+    // },
 
     //wx.showModal({title:'test',content:'content',showCancel:false})
     onBoardClick: function(x, y) {

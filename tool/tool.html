@@ -12,30 +12,43 @@
 		<div style="width: 800px; height: 800px; background: url('bg.png')" />
 		<canvas id="board" width="800px" height="800px" />
 	</div>
-	
-	<p>
-	<input type="radio" name="mode_sel" value="0" checked="checked"/>录入棋子
-	<input type="radio" name="mode_sel" value="1" />录入答案
-	<input type="radio" name="mode_sel" value="2" />录入变化
-	</p>
-	<p>	
-	<input type="radio" name="color_sel" value="1" checked="checked"/>黑棋
-	<input type="radio" name="color_sel" value="0" />白棋
-	</p>
-	
-	<div>
-		<span id="cache_predict"></span><button id="add_predict" type="button">确定</button>
-	</div>
-	
-	
-	解说：<input type="text" id="text" />
-	<a href="#">录入变化黑先</a>
-	<a href="#">录入变化白先</a>
-	</div>
-	
-	<div id="result">
+	<div style="position: absolute; left: 800px; top: 0;">
+		<p>
+		标题:<input type="text" id="title" />
+		<input type="radio" name="init_color_sel" value="1" checked="checked"/>黑先
+		<input type="radio" name="init_color_sel" value="0" />白先
+		</p>
+		<p>内容:<input type="text" id="content" /></p>
+		
 
+		<p>
+		<input type="radio" name="mode_sel" value="0" checked="checked"/>录入棋子
+		<input type="radio" name="mode_sel" value="2" />录入变化
+		</p>
+		<p>	
+		<input type="radio" name="color_sel" value="1" checked="checked"/>黑棋
+		<input type="radio" name="color_sel" value="0" />白棋
+		</p>
+		
+		<div>
+			<span id="cache_predict"></span>
+			<button id="add_correct" type="button">添加为正确答案</button>
+			<button id="add_error" type="button">添加为错误答案</button>
+			<button id="clear_cache" type="button">清空</button>
+		</div>
+		
+		
+		解说：<input type="text" id="text" />
+
+		
+		<button id="finish" type="button">生成结果</button>
+		
+		<div id="result">
+
+		</div>
+		
 	</div>
+
 	
 <script>
 result = {};
@@ -45,6 +58,7 @@ window.onload=function() {
 	result.title = "title";
 	result.content = "content";
 	result.board = {};
+	result.board.info = {};
 	result.board.answer = [];
 	result.board.stone = {black:[], white:[]};
 	result.board.predict = {};
@@ -57,23 +71,16 @@ window.onload=function() {
 		return String.fromCharCode(65+x) + (y+1);
 	}
 	
-	$('#add_predict').click(function() {
-		let cur = result.board.predict;
-		for (let i = 0; i != cache.length; ++i) {
-			let pos = xyToStr(cache[i].x, cache[i].y);
-			let is_input = !!!(i%2);
-			if (is_input) {
-				if (!cur[pos]) {
-					cur[pos] = {};
-				}
-				cur = cur[pos];
-			} else {
-				cur.response = {x: cache[i].x, y: cache[i].y, text: cache[i].text, userdata: cache[i].userdata};
-			}
-		}
+	$('#add_correct').click(function() {
+		addCacheToPredict(true);
+	});
+	$('#add_error').click(function() {
+		addCacheToPredict(false);
+	});
+	
+	$('clear_cache').click(function() {
 		cache = [];
 		$('#cache_predict').text(JSON.stringify(cache));
-		$('#result').text(JSON.stringify(result));
 	});
 	
 	$("#board").click(function(event){
@@ -112,10 +119,43 @@ window.onload=function() {
 
 
         console.log(x, y);
-		addStone(x, y, color, mode==3?''+cache.length:'');
+		addStone(x, y, color, mode==2?''+cache.length:'');
 
 		$('#result').text(JSON.stringify(result));
+		$('#text').val('');
     });
+	
+	addCacheToPredict = function(is_correct) {
+		let cur = result.board.predict;
+		for (let i = 0; i != cache.length; ++i) {
+			let pos = xyToStr(cache[i].x, cache[i].y);
+			let is_input = !!!(i%2);
+			if (is_input) {
+				if (!cur[pos]) {
+					let tmp = {};
+					if (cache[i].text) tmp.text = cache[i].text;
+					if (i == (cache.length - 1) && is_correct)
+						tmp.correct = true;
+					cur[pos] = tmp;
+				}
+				cur = cur[pos];
+			} else {
+				let tmp = {x: cache[i].x, y: cache[i].y, text: cache[i].text};
+				if (i == (cache.length - 1) && !is_correct)
+					tmp.correct = false;
+				cur.response = tmp;
+			}
+		}
+		
+		if (is_correct && result.board.answer.length == 0) {
+			for (let i = 0; i != cache.length; ++i)
+				result.board.answer.push({x:cache[i].x, y:cache[i].y, text:cache[i].text});
+		}
+		
+		cache = [];
+		$('#cache_predict').text(JSON.stringify(cache));
+		$('#result').text(JSON.stringify(result));
+	}
 	
 	addStone = function(x, y, color, note) {
       x = (x+1)*unit_size+2;
@@ -133,14 +173,18 @@ window.onload=function() {
 	  ctx.closePath();
 
       if (note) {
-        ctx.setFillStyle(color==1?'white':'black');
+        ctx.fillStyle = (color==1?'white':'black');
         ctx.lineWidth=2;
-        ctx.setFontSize(stone_size + 2);
-        ctx.setTextBaseline('middle');
-        ctx.setTextAlign('center');
+        ctx.fontSize = 22;
+        ctx.textBaseLine = 'middle';
+        ctx.textAlign = 'center';
         ctx.fillText(note, x, y);
       }
     }
+	
+	restoreBoard = function() {
+	
+	}
 	
 }
 </script>

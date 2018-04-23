@@ -23,13 +23,8 @@
 	<input type="radio" name="color_sel" value="0" />白棋
 	</p>
 	
-	<div id="predicts">
-		<div class="predict_move" move="e5">
-			<span class="move1">e5</span><span class="move2">b5</span><span class="text">test</span>
-			<div class="next">
-			
-			</div>
-		</div>
+	<div>
+		<span id="cache_predict"></span><button id="add_predict" type="button">确定</button>
 	</div>
 	
 	
@@ -52,10 +47,34 @@ window.onload=function() {
 	result.board = {};
 	result.board.answer = [];
 	result.board.stone = {black:[], white:[]};
+	result.board.predict = {};
 
 	var c=document.getElementById("board");
 	var ctx=c.getContext("2d");
-	$('#predicts').data({});
+	var cache = [];
+	
+	xyToStr = function(x, y) {
+		return String.fromCharCode(65+x) + (y+1);
+	}
+	
+	$('#add_predict').click(function() {
+		let cur = result.board.predict;
+		for (let i = 0; i != cache.length; ++i) {
+			let pos = xyToStr(cache[i].x, cache[i].y);
+			let is_input = !!!(i%2);
+			if (is_input) {
+				if (!cur[pos]) {
+					cur[pos] = {};
+				}
+				cur = cur[pos];
+			} else {
+				cur.response = {x: cache[i].x, y: cache[i].y, text: cache[i].text, userdata: cache[i].userdata};
+			}
+		}
+		cache = [];
+		$('#cache_predict').text(JSON.stringify(cache));
+		$('#result').text(JSON.stringify(result));
+	});
 	
 	$("#board").click(function(event){
 		var mode = parseInt($('input:radio[name="mode_sel"]:checked').val());	
@@ -63,6 +82,7 @@ window.onload=function() {
         //标准的获取鼠标点击相对于canvas画布的坐标公式
         var x = event.pageX - c.getBoundingClientRect().left;
         var y = event.pageY - c.getBoundingClientRect().top;
+		var text = $('#text').val();
 		var color = $('input:radio[name="color_sel"]:checked').val();		
 		x = parseInt((x-20) / 40);
 		y = parseInt((y-20) / 40);
@@ -74,7 +94,6 @@ window.onload=function() {
 					result.board.stone.black.push({"x":x, "y":y});
 			break;
 			case 1:
-				var text = $('#text').val();
 				result.board.answer.push({"x":x, "y":y, "color":color, "text":text});
 				if (color == 0)
 					$('input[name="color_sel"]')[0].checked = true;
@@ -82,20 +101,18 @@ window.onload=function() {
 					$('input[name="color_sel"]')[1].checked = true;
 			break;
 			case 2:
-				var cur = $('.predict_move .selected').children('.next')[0];
-				if (!cur) {
-					var tmp = $('<div class="predict_move" move="e5"><span class="move1">e5</span><span class="move2">b5</span><span class="text">test</span><div class="next"></div></div>');
-					cur = tmp.children('.next')[0];
-				} else {
-				
-				}	
-				
+				cache.push({"x":x, "y":y, "color":color, "text":text});
+				if (color == 0)
+					$('input[name="color_sel"]')[0].checked = true;
+				else
+					$('input[name="color_sel"]')[1].checked = true;
+				$('#cache_predict').text(JSON.stringify(cache));
 			break;
 		}
 
 
         console.log(x, y);
-		addStone(x, y, color, '');
+		addStone(x, y, color, mode==3?''+cache.length:'');
 
 		$('#result').text(JSON.stringify(result));
     });
@@ -125,7 +142,6 @@ window.onload=function() {
       }
     }
 	
-	addBranch = function(pos, 
 }
 </script>
 </body>

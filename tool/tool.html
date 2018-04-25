@@ -5,6 +5,7 @@
 	<script src="jquery-3.3.1.min.js"></script>
 	<style type="text/css">
 	* { margin: 0; padding: 0; }
+	.selected { background-color: #ccc; }
 	</style>
 </head>
 <body>
@@ -18,7 +19,6 @@
 		<input type="radio" name="init_color_sel" value="1" checked="checked"/>黑先
 		<input type="radio" name="init_color_sel" value="0" />白先
 		</p>
-		<p>内容:<input type="text" id="content" /></p>
 		
 
 		<p>
@@ -31,14 +31,14 @@
 		</p>
 		
 		<div>
-			<span id="cache_predict"></span>
+			<ol id="cache_predict"></ol>
 			<button id="add_correct" type="button">添加为正确答案</button>
 			<button id="add_error" type="button">添加为错误答案</button>
 			<button id="clear_cache" type="button">清空</button>
 		</div>
 		
 		
-		解说：<input type="text" id="text" />
+		解说：<input type="text" id="text" /><button id="set_text" type="button">添加解说</button>
 
 		
 		<button id="finish" type="button">生成结果</button>
@@ -51,6 +51,10 @@
 
 	
 <script>
+node = [];
+for (let i = 0; i != 19; ++i)
+	node.push(new Array(19));
+
 result = {};
 unit_size = 40;
 stone_size = 18;
@@ -108,12 +112,17 @@ window.onload=function() {
 					$('input[name="color_sel"]')[1].checked = true;
 			break;
 			case 2:
-				cache.push({"x":x, "y":y, "color":color, "text":text});
+				let node = {"x":x, "y":y, "color":color, "text":text};
+				let dom = $('<li class="predict_node"></li>');
+				dom.text(JSON.stringify(node));
+				dom.data('node', node);
+				
+				cache.push(node);
 				if (color == 0)
 					$('input[name="color_sel"]')[0].checked = true;
 				else
 					$('input[name="color_sel"]')[1].checked = true;
-				$('#cache_predict').text(JSON.stringify(cache));
+				$('#cache_predict').append(dom);
 			break;
 		}
 
@@ -124,6 +133,21 @@ window.onload=function() {
 		$('#result').text(JSON.stringify(result));
 		$('#text').val('');
     });
+	
+	$('#cache_predict').on('click', 'li', function() {
+		$(this).addClass('selected').siblings().removeClass('selected');
+	});	
+	$('#set_text').click(function() {
+		let node = $('li .selected');
+		if (node.length == 0) {
+			result.content = $('#text').val();
+			$('#result').text(JSON.stringify(result));
+		} else {
+			let d = node.data('node');
+			d.text = $('#text').val();
+			node.text(JSON.stringify(d));
+		}
+	});
 	
 	addCacheToPredict = function(is_correct) {
 		let cur = result.board.predict;
@@ -183,7 +207,18 @@ window.onload=function() {
     }
 	
 	restoreBoard = function() {
+		node = [];
+		for (let i = 0; i != 19; ++i)
+			node.push(new Array(19));
 	
+		ctx.clearRect(0,0,800,800);
+		for (let i = 0; i != result.board.stone.black.length; ++i) {
+			addStone(result.board.stone.black[i].x, result.board.stone.black[i].y, 1, '');
+		}
+		for (let i = 0; i != result.board.stone.white.length; ++i) {
+			addStone(result.board.stone.white[i].x, result.board.stone.white[i].y, 1, '');
+		}
+		
 	}
 	
 }

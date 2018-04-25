@@ -47,6 +47,8 @@
 
 		</div>
 		
+		
+		
 	</div>
 
 	
@@ -135,10 +137,11 @@ window.onload=function() {
     });
 	
 	$('#cache_predict').on('click', 'li', function() {
+		if ($(this).hasClass('selected')) $(this).removeClass('selected');
 		$(this).addClass('selected').siblings().removeClass('selected');
 	});	
 	$('#set_text').click(function() {
-		let node = $('li .selected');
+		let node = $('li.selected');
 		if (node.length == 0) {
 			result.content = $('#text').val();
 			$('#result').text(JSON.stringify(result));
@@ -147,6 +150,7 @@ window.onload=function() {
 			d.text = $('#text').val();
 			node.text(JSON.stringify(d));
 		}
+		$('#text').val('');
 	});
 	
 	addCacheToPredict = function(is_correct) {

@@ -1,0 +1,34 @@
+<view>
+  <view id="board-bg" />
+  <canvas canvas-id="board" hidden="{{showPreview||showSettings||showNoteDlg}}" style="width:100%;height:750rpx;" bindtap="onBoardClick"></canvas>
+  <view id="control-panel">
+    <view id="prev_move" catchtap="onPrevMove">查看上一手</view>
+    <view id="next_move" catchtap="onNextMove">查看下一手</view>
+  </view>
+  <view id="title">{{title}}</view>
+  <view id="text-content">这是解说：{{content_text}}</view>
+  <view id="bottom-panel">
+    <view class="bottom-text-btn">返回</view>
+    <!-- <block hidden>
+      <view class="control-btn" id="move-up" catchtap="onMoveUpClick">
+        上
+      </view>
+      <view class="control-btn" id="move-left" catchtap="onMoveLeftClick">
+        左
+      </view>
+      <view class="control-btn" id="move-right" catchtap="onMoveRightClick">
+        右
+      </view>
+      <view class="control-btn" id="move-down" catchtap="onMoveDownClick">
+        下
+      </view>
+      <view class="bottom-text-btn">确认落子</view>
+    </block> -->
+    <block hidden="">
+      <view class="bottom-text-btn">上一题</view>
+      <view class="bottom-text-btn">下一题</view>
+      <view class="bottom-text-btn">重做</view>
+      <view class="bottom-text-btn">查看答案</view>
+    </block>
+  </view>
+</view>

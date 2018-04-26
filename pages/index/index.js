@@ -1,11 +1,29 @@
-
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-
+    category_id: 0, // 0显示总目录，否则显示对应章节目录
+    category_list: [
+      { id: 1, title: "AAAAA" },
+      { id: 1, title: "AAAAA" },
+      { id: 1, title: "AAAAA" },
+      { id: 1, title: "AAAAA" },
+    ],
+    question_list: [
+      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+    ]
   },
 
   /**

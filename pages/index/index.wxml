@@ -1,16 +1,26 @@
 <view>
+  <image id="bg-image" src="../images/bg.jpg" />
+  <block wx:if="{{category_id==0}}">
   <view id="category-list">
+    <view id="category-title">目录</view>
     <view id="category-id-container">
-      <view class="category-item">
-        <text>角上死活——进攻部分</text>
-      </view>
-      <view class="category-item">
-        <text>角上死活——进攻部分</text>
+      <view class="category-item" wx:for="{{category_list}}" data-category-id="{{item.id}}">
+        <text>{{item.title}}</text>
       </view>
     </view>
   </view>
 
-  <view id="item-list">
-
+  <view id="note">
+    Web时代,面包屑导航是万金油,人人都要来一发;但是,Hozin劝告诸位:它绝对不适合移动端界面。
   </view>
+  </block>
+
+  <block wx:if="{{category_id!=0}}">
+  <view id="progress-info">
+  {{progress_info}}
+  </view>
+  <view id="item-list">
+    
+  </view> 
+  </block>
 </view>

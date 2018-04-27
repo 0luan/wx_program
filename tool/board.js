@@ -21,19 +21,19 @@ function Board() {
   var star_pos = [{x:3, y:3}, {x:3, y:9}, {x:3, y:15}, {x:9, y:3}, {x:9, y:9}, {x:9, y:15}, {x:15, y:3}, {x:15, y:9}, {x:15, y:15}];
 
   return {
-    init: function() {
+    init: function(id, w) {
       console.log("board.init");
       clip_pos_start = 9;
-      width = 800;
+      width = w || 800;
       height = width;
       if (clip_pos_start > 0)
         unit_size = width / (LINE_COUNT + 2 - clip_pos_start);
       else
         unit_size = width / (LINE_COUNT + 1);
-      stone_size = (unit_size - 2) / 2;
+      stone_size = (unit_size - 1) / 2;
       canvas_id = "board";
 
-	  ctx=document.getElementById("board").getContext("2d");
+	  ctx=document.getElementById(id).getContext("2d");
       ctx.clearRect(0, 0, width, width);
       // // draw background
       // if (show_background) {

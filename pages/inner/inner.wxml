@@ -8,7 +8,7 @@
   <view id="title">{{title}}</view>
   <view id="text-content">这是解说：{{content_text}}</view>
   <view id="bottom-panel">
-    <view class="bottom-text-btn">返回</view>
+    <view class="bottom-text-btn" catchtap="onExit">返回</view>
     <!-- <block hidden>
       <view class="control-btn" id="move-up" catchtap="onMoveUpClick">
         上

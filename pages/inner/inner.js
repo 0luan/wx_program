@@ -4,7 +4,7 @@ import { GoJudger } from "../../go/go_judger.js"
 
 var controller = GoController();
 
-var content = '{"type":"normal","content":"吃子技巧－枷如何吃掉白子","board":{"answer":[{"x":14,"y":18,"color":"0","text":""},{"x":15,"y":18,"color":"1","text":""},{"x":17,"y":18,"color":"0","text":""}],"stone":{"black":[{"x":18,"y":17},{"x":17,"y":17},{"x":16,"y":17},{"x":15,"y":17},{"x":14,"y":17}],"white":[{"x":13,"y":17},{"x":13,"y":16},{"x":14,"y":16},{"x":15,"y":16},{"x":16,"y":16},{"x":17,"y":16},{"x":17,"y":14}]}}}';
+var content = '{"content":"content","board":{"info":{},"answer":[{"x":17,"y":18,"text":""},{"x":16,"y":18,"text":""},{"x":14,"y":18,"text":""},{"x":13,"y":18,"text":""},{"x":13,"y":17,"text":""}],"stone":{"black":[{"x":18,"y":17},{"x":17,"y":17},{"x":16,"y":17},{"x":15,"y":17},{"x":14,"y":17}],"white":[{"x":17,"y":14},{"x":17,"y":16},{"x":16,"y":16},{"x":15,"y":16},{"x":14,"y":16},{"x":13,"y":16},{"x":11,"y":17},{"x":11,"y":16},{"x":12,"y":17}]},"predict":{"R19":{"response":{"x":16,"y":18,"text":""},"O19":{"response":{"x":13,"y":18,"text":""},"N18":{"correct":true}}},"O19":{"response":{"x":15,"y":18,"text":""},"R19":{"response":{"x":13,"y":17,"text":""},"N19":{"response":{"x":12,"y":18,"text":""}}}},"N18":{"response":{"x":14,"y":18,"text":"","correct":false}}}}}';
 var cur_page_index = 0;
 Page({
 
@@ -110,6 +110,10 @@ Page({
     this.setData({
       "content_text":content.content
     });
+  },
+
+  onExit: function() {
+    wx.navigateBack();
   },
 
   onRestart: function() {

@@ -83,8 +83,6 @@ export function GoController() {
 
     //wx.showModal({title:'test',content:'content',showCancel:false})
     onBoardClick: function(x, y) {
-      this.addStone(x, y, next_move_color);
-      if (next_move_color == 0) next_move_color = 1; else next_move_color = 0;
       switch (mode) {
         // 答题 
         case BATTLE_MODE:
@@ -100,23 +98,22 @@ export function GoController() {
             if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
             if (cur_predict_tree.correct != undefined) {
               if (cur_predict_tree.correct) {
-
+                wx.showModal({ title: 'fuck', content: "right answer", showCancel: false });
               } else {
-
+                wx.showModal({ title: 'fuck', content: "wrong answer", showCancel: false });
               }
               return;
             }
 
 
-            if (cur_predict_tree.respond.x != -1)
+            if (cur_predict_tree.response.x != undefined && cur_predict_tree.response.y != undefined)
             {
-              this.addStone(cur_predict_tree.respond.x, cur_predict_tree.respond.y, next_move_color);
+              this.addStone(cur_predict_tree.response.x, cur_predict_tree.response.y, next_move_color);
             }
             if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
 
-            if (cur_predict_tree.respond.text)
-              wx.showModal({ title: 'test', content: cur_predict_tree.respond.text, showCancel: false });
-            cur_predict_tree = cur_predict_tree.next;
+            if (cur_predict_tree.response.text)
+              wx.showModal({ title: 'test', content: cur_predict_tree.response.text, showCancel: false });
           } else {
             wx.showModal({ title: 'test', content: "wrong answer", showCancel: false });
           }

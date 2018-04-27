@@ -48,7 +48,7 @@
 
 		</div>
 		
-		<canvas id="tmp_board" width="100px" height="100px" />
+		<canvas id="tmp_board" width="108px" height="108px" />
 		
 	</div>
 
@@ -59,7 +59,7 @@
 		result.title = "title";
 		result.content = "content";
 		result.board = {};
-		result.board.info = {};
+		result.board.info = {clip_pos: 9};
 		result.board.answer = [];
 		result.board.stone = {black:[], white:[]};
 		result.board.predict = {};
@@ -67,7 +67,7 @@
 		cache = [];
 	
 		board = Board();
-		board.init();
+		board.init("board");
 		judger = GoJudger();
 		judger.init();
 	}
@@ -147,7 +147,7 @@
 		x = pt.x, y = pt.y;
 		
         console.log(x, y);
-		if (!addStone(x, y, color, mode==2?''+cache.length:''))
+		if (!addStone(x, y, color, mode==2?''+(cache.length+1):''))
 			return;
 			
 		switch (mode) {
@@ -188,7 +188,7 @@
 	$('#add_error').click(function() {
 		addCacheToPredict(false);
 	});
-	$('clear_cache').click(function() {
+	$('#clear_cache').click(function() {
 		cache = [];
 		$('#cache_predict').text(JSON.stringify(cache));
 	});
@@ -207,6 +207,24 @@
 			node.text(JSON.stringify(d));
 		}
 		$('#text').val('');
+	});
+	
+	$('#finish').click(function() {
+		// 棋局信息
+		result.board.info.next_move_color = $('input[name="init_color_sel"]:checked').val();
+		
+		// 生成缩略图
+		var tmp = Board();
+		tmp.init("tmp_board", 108);
+		for (let i = 0; i != result.board.stone.black.length; ++i) {
+			tmp.addStone(result.board.stone.black[i].x, result.board.stone.black[i].y, 1, '');
+		}
+		for (let i = 0; i != result.board.stone.white.length; ++i) {
+			tmp.addStone(result.board.stone.white[i].x, result.board.stone.white[i].y, 0, '');
+		}
+		console.log(document.getElementById('tmp_board').toDataURL());
+		
+		// 上传数据
 	});
 </script>
 

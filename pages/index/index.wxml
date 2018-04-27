@@ -16,14 +16,19 @@
   </block>
 
   <block wx:if="{{category_id!=0}}">
-  <view id="progress-info">
+  <view id="item-list-title">
   {{progress_info}}
   </view>
   <view id="item-list">
     <view class="question-item" wx:for="{{question_list}}" catchtap="onQuestionSelect" data-question-id="{{item.id}}">
-      <image class="question-thumb" src="../images/bg.jpg" />
+      <image class="question-thumb"/>
       <view class="question-title">{{item.title}}</view>
     </view>
   </view> 
+  <view id="item-bottom-view">
+    <view id="navigateBack">返回</view>
+    <view id="progress-info">TESTTESTTESTTEST</view>
+    <view id="go">继续做题</view>
+  </view>
   </block>
 </view>

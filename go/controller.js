@@ -32,7 +32,7 @@ export function GoController() {
     ANSWER_MODE: ANSWER_MODE,
     BATTLE_MODE: BATTLE_MODE,
     TRY_MODE: TRY_MODE,
-    init: function(board_clip_pos, init, answer, predict) {
+    init: function(board_clip_pos, init, next_move, answer, predict) {
       board = Board();
       board.init(board_clip_pos, "board");
 
@@ -53,6 +53,7 @@ export function GoController() {
         }
       }
 
+      next_move_color = next_move;
       answer_moves = answer;
       predict_moves = predict;
       cur_predict_tree = predict_moves;
@@ -84,7 +85,6 @@ export function GoController() {
     onBoardClick: function(x, y) {
       this.addStone(x, y, next_move_color);
       if (next_move_color == 0) next_move_color = 1; else next_move_color = 0;
-      return;
       switch (mode) {
         // 答题 
         case BATTLE_MODE:
@@ -98,6 +98,16 @@ export function GoController() {
               this.addStone(x, y, next_move_color);
             }
             if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
+            if (cur_predict_tree.correct != undefined) {
+              if (cur_predict_tree.correct) {
+
+              } else {
+
+              }
+              return;
+            }
+
+
             if (cur_predict_tree.respond.x != -1)
             {
               this.addStone(cur_predict_tree.respond.x, cur_predict_tree.respond.y, next_move_color);
@@ -110,11 +120,6 @@ export function GoController() {
           } else {
             wx.showModal({ title: 'test', content: "wrong answer", showCancel: false });
           }
-        break;
-
-        // 试下
-        case TRY_MODE:
-
         break;
       }
     },

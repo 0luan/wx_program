@@ -1,5 +1,5 @@
 function Board() {
-  var LINE_COUNT = 11;
+  var LINE_COUNT = 19;
   var width, height;
   var unit_size;  // 格子大小
   var stone_size; // 棋子大小
@@ -13,16 +13,24 @@ function Board() {
   var selected_y = -1;
 
   var show_background = true; // 显示背景图
-  var show_coordinate = true; // 显示坐标
+  var show_coordinate = false; // 显示坐标
+
+  // 裁剪棋盘，只显示部分(右下角)
+  var clip_pos_start = 0; 
+
+  var star_pos = [{x:3, y:3}, {x:3, y:9}, {x:3, y:15}, {x:9, y:3}, {x:9, y:9}, {x:9, y:15}, {x:15, y:3}, {x:15, y:9}, {x:15, y:15}];
 
   return {
     init: function() {
       console.log("board.init");
-      LINE_COUNT = 19;
+      clip_pos_start = 9;
       width = 800;
       height = width;
-      unit_size = width / (LINE_COUNT+1);
-      stone_size = (unit_size - 4) / 2;
+      if (clip_pos_start > 0)
+        unit_size = width / (LINE_COUNT + 2 - clip_pos_start);
+      else
+        unit_size = width / (LINE_COUNT + 1);
+      stone_size = (unit_size - 2) / 2;
       canvas_id = "board";
 
 	  ctx=document.getElementById("board").getContext("2d");
@@ -36,22 +44,62 @@ function Board() {
 
       ctx.strokeStyle = 'black';
       ctx.lineWidth = 1;
-      ctx.strokeRect(unit_size, unit_size, (width-2*unit_size), (width-2*unit_size));
 
       node_data = new Array(LINE_COUNT);
       for (var i = 0; i != LINE_COUNT; ++i) {
         node_data[i] = new Array(LINE_COUNT);
       }
       
-      for (var i = 2; i != LINE_COUNT; ++i) {
-        ctx.moveTo(i*unit_size, unit_size);
-        ctx.lineTo(i*unit_size, width-unit_size);
+      if (clip_pos_start == 0) {
+        ctx.moveTo(unit_size, unit_size);
+        ctx.lineTo(unit_size, width - unit_size);
+        ctx.stroke();
+        ctx.moveTo(unit_size, unit_size);
+        ctx.lineTo(width - unit_size, unit_size);
         ctx.stroke();
       }
-      for (var i = 2; i != LINE_COUNT; ++i) {
-        ctx.moveTo(unit_size, i*unit_size);
-        ctx.lineTo(width-unit_size, i*unit_size);
+
+      if (clip_pos_start > 0) {
+        for (let i = 1; i != LINE_COUNT - clip_pos_start + 1; ++i) {
+          console.log('draw line');
+          ctx.moveTo((i+1) * unit_size, unit_size);
+          ctx.lineTo((i+1) * unit_size, width - unit_size);
+          ctx.stroke();
+
+          ctx.moveTo(unit_size, (i+1)*unit_size);
+          ctx.lineTo(width-unit_size, (i+1)*unit_size);
+          ctx.stroke();
+        }
+      } else {
+        for (let i = 1; i != LINE_COUNT; ++i) {
+          console.log('draw line');
+          ctx.moveTo((i + 1) * unit_size, unit_size);
+          ctx.lineTo((i + 1) * unit_size, width - unit_size);
+          ctx.stroke();
+
+          ctx.moveTo(unit_size, (i + 1) * unit_size);
+          ctx.lineTo(width - unit_size, (i + 1) * unit_size);
+          ctx.stroke();
+        }
+      }
+
+      for (let i = 0; i != star_pos.length; ++i) {
+        let x = star_pos[i].x, y = star_pos[i].y;
+        if (x < clip_pos_start || y < clip_pos_start) continue;
+        if (clip_pos_start > 0) {
+          x = (x - clip_pos_start + 2) * unit_size;
+          y = (y - clip_pos_start + 2) * unit_size;
+        } else {
+          x = (x + 1) * unit_size;
+          y = (y + 1) * unit_size;
+        }
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'black';
+        ctx.beginPath();
+        ctx.arc(x, y, 2, 0, 2 * Math.PI);
         ctx.stroke();
+        ctx.fillStyle = 'black';
+        ctx.fill();
       }
 
       if (show_coordinate) {
@@ -214,6 +262,10 @@ function Board() {
         'x': parseInt(x / unit_size - 0.5),
         'y': parseInt(y / unit_size - 0.5)
       };
+      if (clip_pos_start > 0) {
+        pt.x = pt.x + clip_pos_start - 1;
+        pt.y = pt.y + clip_pos_start - 1;
+      }
       if (pt.x >= LINE_COUNT) {
         --pt.x;
       }
@@ -322,13 +374,22 @@ function Board() {
     },
 
     addStone: function(x, y, color, note, refresh = true) {
-      console.log('board.addStone', x, y, color, note);
+      if (clip_pos_start > 0) {
+        if (x < clip_pos_start || y < clip_pos_start)
+          return;
+      }
+      console.log('addStone', x, y, color);
       selected_x = -1;
       selected_y = -1;
       node_data[x][y] = { "color": color, "note": note };
-
-      x = (x+1)*unit_size;
-      y = (y+1)*unit_size;
+      console.log(x, y);
+      if (clip_pos_start > 0) { 
+        x = (x - clip_pos_start + 2) * unit_size;
+        y = (y - clip_pos_start + 2) * unit_size;
+      } else {
+        x = (x + 1) * unit_size;
+        y = (y + 1) * unit_size;
+      }
       
       ctx.clearRect(x - 0.5 * unit_size, y - 0.5 * unit_size, unit_size, unit_size);
       ctx.lineWidth = 1;
@@ -352,22 +413,45 @@ function Board() {
 
     removeStone: function(x, y, refresh = true) {
       console.log('board.removeStone', x, y);
-      
-      x = (x + 0.5) * unit_size;
-      y = (y + 0.5) * unit_size;
+      let pos_x, pos_y;
+      if (clip_pos_start > 0) {
+        pos_x = (x - clip_pos_start + 1.5) * unit_size;
+        pos_y = (y - clip_pos_start + 1.5) * unit_size;
+      } else {
+        pos_x = (x + 0.5) * unit_size;
+        pos_y = (y + 0.5) * unit_size;
+      }
       ctx.fillStyle = 'white';
-      ctx.clearRect(x, y, unit_size, unit_size);
+      ctx.clearRect(pos_x, pos_y, unit_size, unit_size);
 
       ctx.lineWidth = 1;
       ctx.strokeStyle = 'black';
-      ctx.moveTo(x, y + 0.5*unit_size);
-      ctx.lineTo(x + unit_size, y + 0.5*unit_size);
+      ctx.moveTo(pos_x, pos_y + 0.5*unit_size);
+      ctx.lineTo(pos_x + unit_size, pos_y + 0.5*unit_size);
       ctx.stroke();
 
-      ctx.moveTo(x + 0.5 * unit_size, y);
-      ctx.lineTo(x + 0.5 * unit_size, y + unit_size);
+      ctx.moveTo(pos_x + 0.5 * unit_size, pos_y);
+      ctx.lineTo(pos_x + 0.5 * unit_size, pos_y + unit_size);
       ctx.stroke();
 
+      for (let i = 0; i != star_pos.length; ++i) {
+        if (x != star_pos[i].x || y != star_pos[i].y) continue;
+        if (clip_pos_start > 0) {
+          x = (x - clip_pos_start + 2) * unit_size;
+          y = (y - clip_pos_start + 2) * unit_size;
+        } else {
+          x = (x + 1) * unit_size;
+          y = (y + 1) * unit_size;
+        }
+        ctx.setLineWidth(1);
+        ctx.setStrokeStyle('black');
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.setFillStyle('black');
+        ctx.fill();
+
+      }
     },
 
     addText: function(x, y, text, refresh = true) {
@@ -380,8 +464,13 @@ function Board() {
       } else {
         node_data[x][y] = { "color": -1, "note": text };
 
-        x = (x + 1) * unit_size;
-        y = (y + 1) * unit_size;
+        if (clip_pos_start > 0) {
+          x = (x - clip_pos_start + 2) * unit_size;
+          y = (y - clip_pos_start + 2) * unit_size;
+        } else {
+          x = (x + 1) * unit_size;
+          y = (y + 1) * unit_size;
+        }
         ctx.clearRect(x - 0.5 * unit_size, y - 0.5 * unit_size, unit_size, unit_size);
 
         ctx.fillStyle = 'black';
@@ -398,9 +487,14 @@ function Board() {
     },
 
     removeText: function(x, y) {
-      x = (x + 0.5) * unit_size;
-      y = (y + 0.5) * unit_size;
-      ctx.fillStyle = 'white';
+      if (clip_pos_start > 0) {
+        x = (x - clip_pos_start + 1.5) * unit_size;
+        y = (y - clip_pos_start + 1.5) * unit_size;
+      } else {
+        x = (x + 0.5) * unit_size;
+        y = (y + 0.5) * unit_size;
+      }
+      ctx.setFillStyle('white');
       ctx.clearRect(x, y, unit_size, unit_size);
 
       ctx.lineWidth = 1;

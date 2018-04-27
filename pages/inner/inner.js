@@ -101,7 +101,7 @@ Page({
     var board_info = content.board;
     if (board_info) {
       console.log(board_info.predict);
-      controller.init(board_info.board_clip_pos || 9, board_info.stone, board_info.answer, board_info.predict);
+      controller.init(board_info.board_clip_pos || 9, board_info.stone, board_info.next_move_color, board_info.answer, board_info.predict);
       this.setData({
         "enable_answer_mode": !!board_info.moves,
         "enable_battle_mode": !!board_info.predict,
@@ -110,6 +110,22 @@ Page({
     this.setData({
       "content_text":content.content
     });
+  },
+
+  onRestart: function() {
+
+  },
+
+  onUndo: function () {
+
+  },
+
+  onShowAnswer: function () {
+
+  },
+
+  onShare: function () {
+
   },
 
   onTryMove: function() {

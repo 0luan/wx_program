@@ -1,8 +1,7 @@
 {
   "pages":[
     "pages/index/index",
-    "pages/five/five",
-    "pages/go/go",
+    "pages/inner/inner",
     "pages/logs/logs"
   ],
   "window":{

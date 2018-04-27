@@ -32,9 +32,9 @@ export function GoController() {
     ANSWER_MODE: ANSWER_MODE,
     BATTLE_MODE: BATTLE_MODE,
     TRY_MODE: TRY_MODE,
-    init: function(board_size, init, answer, predict) {
+    init: function(board_clip_pos, init, answer, predict) {
       board = Board();
-      board.init(19, "board");
+      board.init(board_clip_pos, "board");
 
       judger = GoJudger();
       judger.init();
@@ -82,6 +82,9 @@ export function GoController() {
 
     //wx.showModal({title:'test',content:'content',showCancel:false})
     onBoardClick: function(x, y) {
+      this.addStone(x, y, next_move_color);
+      if (next_move_color == 0) next_move_color = 1; else next_move_color = 0;
+      return;
       switch (mode) {
         // 答题 
         case BATTLE_MODE:

@@ -27,3 +27,21 @@
   bottom: 0;
   padding: 10px;
 }
+
+#progress-info {
+  height: 32px;
+  font-size: 18px;
+}
+
+.question-item {
+  display: inline-block;
+  width: 21vw;
+  padding: 2vw;
+
+}
+
+.question-thumb {
+  width: 21vw;
+  height: 21vw;
+  font-size: 18px;
+}

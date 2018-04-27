@@ -4,7 +4,7 @@
   <view id="category-list">
     <view id="category-title">目录</view>
     <view id="category-id-container">
-      <view class="category-item" wx:for="{{category_list}}" data-category-id="{{item.id}}">
+      <view class="category-item" wx:for="{{category_list}}" data-category-id="{{item.id}}" catchtap="onCategorySelect">
         <text>{{item.title}}</text>
       </view>
     </view>
@@ -20,7 +20,10 @@
   {{progress_info}}
   </view>
   <view id="item-list">
-    
+    <view class="question-item" wx:for="{{question_list}}" catchtap="onQuestionSelect" data-question-id="{{item.id}}">
+      <image class="question-thumb" src="../images/bg.jpg" />
+      <view class="question-title">{{item.title}}</view>
+    </view>
   </view> 
   </block>
 </view>

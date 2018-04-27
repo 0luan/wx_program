@@ -19,6 +19,7 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
+    let id = options.id;
     this.loadContent(content);
   },
 
@@ -78,7 +79,6 @@ Page({
   onBoardClick: function (e) {
     console.log(e);
     let pt = controller.pointToXY(e.detail.x - e.target.offsetLeft, e.detail.y - e.target.offsetTop);
-    console.log(pt);
     
     // let result = r.addStone(pt.x, pt.y, color);
     // console.log(result);
@@ -101,7 +101,7 @@ Page({
     var board_info = content.board;
     if (board_info) {
       console.log(board_info.predict);
-      controller.init(19, board_info.stone, board_info.answer, board_info.predict);
+      controller.init(board_info.board_clip_pos || 9, board_info.stone, board_info.answer, board_info.predict);
       this.setData({
         "enable_answer_mode": !!board_info.moves,
         "enable_battle_mode": !!board_info.predict,

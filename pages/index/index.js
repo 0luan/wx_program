@@ -4,7 +4,7 @@ Page({
    * 页面的初始数据
    */
   data: {
-    category_id: 0, // 0显示总目录，否则显示对应章节目录
+    category_id: 1, // 0显示总目录，否则显示对应章节目录
     category_list: [
       { id: 1, title: "AAAAA" },
       { id: 1, title: "AAAAA" },
@@ -23,7 +23,9 @@ Page({
       { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
       { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
       { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
-    ]
+    ],
+    progress_info: "TESTTESTTEST",
+    
   },
 
   /**
@@ -79,5 +81,19 @@ Page({
    */
   onShareAppMessage: function () {
 
+  },
+
+  onCategorySelect: function(e) {
+    let id = 1;
+    this.setData({
+      category_id: id,
+    })
+  },
+
+  onQuestionSelect: function(e) {
+    let id = 1;
+    wx.navigateTo({
+      url: '../../pages/inner/inner?id=' + id
+    })
   }
 })

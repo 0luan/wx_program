@@ -3,6 +3,7 @@
 
 <head>
 	<script src="jquery-3.3.1.min.js"></script>
+	<script src="go_judger.js"></script>
 	<style type="text/css">
 	* { margin: 0; padding: 0; }
 	.selected { background-color: #ccc; }
@@ -10,7 +11,7 @@
 </head>
 <body>
 	<div>
-		<div style="width: 800px; height: 800px; background: url('bg.png')" />
+		<div style="width: 800px; height: 800px; background: #c88f03" />
 		<canvas id="board" width="800px" height="800px" />
 	</div>
 	<div style="position: absolute; left: 800px; top: 0;">
@@ -47,58 +48,63 @@
 
 		</div>
 		
-		
+		<canvas id="tmp_board" width="100px" height="100px" />
 		
 	</div>
 
 	
+<script src="board.js"></script>
 <script>
-node = [];
-for (let i = 0; i != 19; ++i)
-	node.push(new Array(19));
-
-result = {};
-unit_size = 40;
-stone_size = 18;
-window.onload=function() {
-	result.title = "title";
-	result.content = "content";
-	result.board = {};
-	result.board.info = {};
-	result.board.answer = [];
-	result.board.stone = {black:[], white:[]};
-	result.board.predict = {};
-
-	var c=document.getElementById("board");
-	var ctx=c.getContext("2d");
-	var cache = [];
+	window.onload=function() {
+		result.title = "title";
+		result.content = "content";
+		result.board = {};
+		result.board.info = {};
+		result.board.answer = [];
+		result.board.stone = {black:[], white:[]};
+		result.board.predict = {};
 	
-	xyToStr = function(x, y) {
-		return String.fromCharCode(65+x) + (y+1);
+		board = Board();
+		board.init();
+		judger = GoJudger();
+		judger.init();
 	}
 	
-	$('#add_correct').click(function() {
-		addCacheToPredict(true);
-	});
-	$('#add_error').click(function() {
-		addCacheToPredict(false);
-	});
-	
-	$('clear_cache').click(function() {
-		cache = [];
-		$('#cache_predict').text(JSON.stringify(cache));
-	});
+	addStone = function(x, y, color, note) {
+	  let deads = judger.addStone(x, y, color);
+      if (deads === false) {
+        console.log('add stone error');
+        return false;
+      }
+      board.addStone(x, y, color, note);
+      for (let i = 0; i != deads.length; ++i)
+        board.removeStone(deads[i].x, deads[i].y);
+	  return true;
+	}
 	
 	$("#board").click(function(event){
 		var mode = parseInt($('input:radio[name="mode_sel"]:checked').val());	
 
         //标准的获取鼠标点击相对于canvas画布的坐标公式
-        var x = event.pageX - c.getBoundingClientRect().left;
-        var y = event.pageY - c.getBoundingClientRect().top;
+        var x = event.pageX - document.getElementById("board").getBoundingClientRect().left;
+        var y = event.pageY - document.getElementById("board").getBoundingClientRect().top;
 		var text = $('#text').val();
 		var color = $('input:radio[name="color_sel"]:checked').val();		
-		x = parseInt((x-20) / 40);
-		y = parseInt((y-20) / 40);
+
+		x = parseInt(x / 40 - 0.5),
+        y = parseInt(y / 40 - 0.5);
+		if (x >= 19) {
+		  --x;
+		}
+		if (y >= 19) {
+          --y;
+		}
+		
+		
+        console.log(x, y);
+		if (!addStone(x, y, color, mode==2?''+cache.length:''))
+			return;
+			
 		switch (mode) {
 			case 0:
 				if (color == 0) 
@@ -128,104 +134,9 @@ window.onload=function() {
 			break;
 		}
 
-
-        console.log(x, y);
-		addStone(x, y, color, mode==2?''+cache.length:'');
-
 		$('#result').text(JSON.stringify(result));
-		$('#text').val('');
     });
-	
-	$('#cache_predict').on('click', 'li', function() {
-		if ($(this).hasClass('selected')) $(this).removeClass('selected');
-		$(this).addClass('selected').siblings().removeClass('selected');
-	});	
-	$('#set_text').click(function() {
-		let node = $('li.selected');
-		if (node.length == 0) {
-			result.content = $('#text').val();
-			$('#result').text(JSON.stringify(result));
-		} else {
-			let d = node.data('node');
-			d.text = $('#text').val();
-			node.text(JSON.stringify(d));
-		}
-		$('#text').val('');
-	});
-	
-	addCacheToPredict = function(is_correct) {
-		let cur = result.board.predict;
-		for (let i = 0; i != cache.length; ++i) {
-			let pos = xyToStr(cache[i].x, cache[i].y);
-			let is_input = !!!(i%2);
-			if (is_input) {
-				if (!cur[pos]) {
-					let tmp = {};
-					if (cache[i].text) tmp.text = cache[i].text;
-					if (i == (cache.length - 1) && is_correct)
-						tmp.correct = true;
-					cur[pos] = tmp;
-				}
-				cur = cur[pos];
-			} else {
-				let tmp = {x: cache[i].x, y: cache[i].y, text: cache[i].text};
-				if (i == (cache.length - 1) && !is_correct)
-					tmp.correct = false;
-				cur.response = tmp;
-			}
-		}
-		
-		if (is_correct && result.board.answer.length == 0) {
-			for (let i = 0; i != cache.length; ++i)
-				result.board.answer.push({x:cache[i].x, y:cache[i].y, text:cache[i].text});
-		}
-		
-		cache = [];
-		$('#cache_predict').text(JSON.stringify(cache));
-		$('#result').text(JSON.stringify(result));
-	}
-	
-	addStone = function(x, y, color, note) {
-      x = (x+1)*unit_size+2;
-      y = (y+1)*unit_size+2;
-      console.log(x, y);
-
-      ctx.lineWidth=1;
-      ctx.strokeStyle = '#ffffff';
-
-	  ctx.fillStyle = color==1?'black':'white';
-      ctx.beginPath();
-      ctx.arc(x, y, stone_size, 0, 2*Math.PI);
-      ctx.fill();
-      ctx.fill();
-	  ctx.closePath();
-
-      if (note) {
-        ctx.fillStyle = (color==1?'white':'black');
-        ctx.lineWidth=2;
-        ctx.fontSize = 22;
-        ctx.textBaseLine = 'middle';
-        ctx.textAlign = 'center';
-        ctx.fillText(note, x, y);
-      }
-    }
-	
-	restoreBoard = function() {
-		node = [];
-		for (let i = 0; i != 19; ++i)
-			node.push(new Array(19));
-	
-		ctx.clearRect(0,0,800,800);
-		for (let i = 0; i != result.board.stone.black.length; ++i) {
-			addStone(result.board.stone.black[i].x, result.board.stone.black[i].y, 1, '');
-		}
-		for (let i = 0; i != result.board.stone.white.length; ++i) {
-			addStone(result.board.stone.white[i].x, result.board.stone.white[i].y, 1, '');
-		}
-		
-	}
-	
-}
 </script>
+
 </body>
 </html>

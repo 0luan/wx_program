@@ -98,9 +98,9 @@ export function GoController() {
             if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
             if (cur_predict_tree.correct != undefined) {
               if (cur_predict_tree.correct) {
-                wx.showModal({ title: 'fuck', content: "right answer", showCancel: false });
+                getApp().getCurrentPage().setData({ state: 1 });
               } else {
-                wx.showModal({ title: 'fuck', content: "wrong answer", showCancel: false });
+                getApp().getCurrentPage().setData({ state: 2 });
               }
               return;
             }

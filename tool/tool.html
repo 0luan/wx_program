@@ -39,7 +39,7 @@
 		</div>
 		
 		
-		解说：<input type="text" id="text" /><button id="set_text" type="button">添加解说</button>
+		解说：<textarea id="text" /><button id="set_text" type="button">添加解说</button>
 
 		
 		<button id="finish" type="button">生成结果</button>
@@ -55,6 +55,8 @@
 	
 <script src="board.js"></script>
 <script>
+	var result = {};
+
 	window.onload=function() {
 		result.title = "title";
 		result.content = "content";
@@ -225,6 +227,17 @@
 		console.log(document.getElementById('tmp_board').toDataURL());
 		
 		// 上传数据
+		$.ajax({ 
+	    	type : "POST", //提交方式 
+	    	url : "http://192.168.0.231:8080/api?op=add&category_id=" + 5 + "&title=title",//路径 
+	    	data : "content=" + JSON.stringify(result) + "&thumb=" + document.getElementById('tmp_board').toDataURL().substr("data:image/png;".length),
+	    	dataType: "POST",
+	    	success : function(res) {//返回数据根据结果进行相应的处理 
+	    		console.log(res);
+	    		if (res.state) alert("添加成功");
+	    		else alert("添加失败");
+	     	}
+	    }); 
 	});
 </script>
 

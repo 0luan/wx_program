@@ -32,6 +32,8 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
+    getApp().setQuestionListener(this);
+    this.loadCategoryList();
   },
 
   /**
@@ -59,7 +61,7 @@ Page({
    * 生命周期函数--监听页面卸载
    */
   onUnload: function () {
-
+    getApp().setQuestionListener(null);
   },
 
   /**
@@ -80,6 +82,43 @@ Page({
    * 用户点击右上角分享
    */
   onShareAppMessage: function () {
+
+  },
+
+  loadCategoryList: function() {
+    wx.request({
+      url: "http://127.0.0.1:8080/api/",
+      data: "",
+      method: "GET",
+      dataType: "json",
+      complete(res) {
+        console.log(res);
+        if (res.statusCode == 200) {
+
+        } else {
+
+        }
+      }
+    });
+  },
+  loadCategory: function(id) {
+    wx.request({
+      url: "http://127.0.0.1:8080/api/",
+      data: "",
+      method: "GET",
+      dataType: "json",
+      complete(res) {
+        console.log(res);
+        if (res.statusCode == 200) {
+
+        } else {
+
+        }
+      }
+    });
+  },
+
+  onQuestionDone: function(id) {
 
   },
 

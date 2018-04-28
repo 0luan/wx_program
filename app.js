@@ -32,8 +32,34 @@ App({
         }
       }
     })
+
+    // 获取做题进度
+    wx.getStorage({
+      key: "progress_info",
+      complete(res) {
+        console.log(res);
+      }
+    });
   },
   globalData: {
-    userInfo: null
+    userInfo: null,
+    question_listener: null,
+    cur_category_id: 0,
+    cur_category_list: [],
+
+
+  },
+
+  setCurCategory: function(id, list) {
+
+  },
+  setQuestionListener: function(listener) {
+    this.globalData.question_listener = listener;
+  },
+  onQuestionDone: function(id) {
+    if (this.globalData.question_listener) {
+      this.globalData.question_listener.onQuestionDone(id);
+    }
   }
+
 })

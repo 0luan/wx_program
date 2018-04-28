@@ -21,8 +21,8 @@
   </view>
   <view id="item-list">
     <view class="question-item" wx:for="{{question_list}}" catchtap="onQuestionSelect" data-question-id="{{item.id}}">
+      <image wx:if="{{item.done}}" class="question-done" mode="aspectFit" src="../images/right.png" />
       <image class="question-thumb"/>
-      <view class="question-title">{{item.title}}</view>
     </view>
   </view> 
   <view id="item-bottom-view">

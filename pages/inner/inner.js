@@ -4,15 +4,16 @@ import { GoJudger } from "../../go/go_judger.js"
 
 var controller = GoController();
 
-var content = '{"content":"content","board":{"info":{},"answer":[{"x":17,"y":18,"text":""},{"x":16,"y":18,"text":""},{"x":14,"y":18,"text":""},{"x":13,"y":18,"text":""},{"x":13,"y":17,"text":""}],"stone":{"black":[{"x":18,"y":17},{"x":17,"y":17},{"x":16,"y":17},{"x":15,"y":17},{"x":14,"y":17}],"white":[{"x":17,"y":14},{"x":17,"y":16},{"x":16,"y":16},{"x":15,"y":16},{"x":14,"y":16},{"x":13,"y":16},{"x":11,"y":17},{"x":11,"y":16},{"x":12,"y":17}]},"predict":{"R19":{"response":{"x":16,"y":18,"text":""},"O19":{"response":{"x":13,"y":18,"text":""},"N18":{"correct":true}}},"O19":{"response":{"x":15,"y":18,"text":""},"R19":{"response":{"x":13,"y":17,"text":""},"N19":{"response":{"x":12,"y":18,"text":""}}}},"N18":{"response":{"x":14,"y":18,"text":"","correct":false}}}}}';
+var content = '{"title":"title","content":"content","board":{"info":{},"answer":[{"x":17,"y":18,"text":""},{"x":16,"y":18,"text":""},{"x":14,"y":18,"text":""},{"x":13,"y":18,"text":""},{"x":13,"y":17,"text":""}],"stone":{"black":[{"x":18,"y":17},{"x":17,"y":17},{"x":16,"y":17},{"x":15,"y":17},{"x":14,"y":17}],"white":[{"x":17,"y":14},{"x":17,"y":16},{"x":16,"y":16},{"x":15,"y":16},{"x":14,"y":16},{"x":13,"y":16},{"x":11,"y":17},{"x":11,"y":16},{"x":12,"y":17}]},"predict":{"R19":{"response":{"x":16,"y":18,"text":""},"O19":{"response":{"x":13,"y":18,"text":""},"N18":{"correct":true}}},"O19":{"response":{"x":15,"y":18,"text":""},"R19":{"response":{"x":13,"y":17,"text":""},"N19":{"response":{"x":12,"y":18,"text":""}}}},"N18":{"response":{"x":14,"y":18,"text":"","correct":false}}}}}';
 var cur_page_index = 0;
+
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-
+    right_answer: false,
   },
 
   /**
@@ -77,7 +78,8 @@ Page({
   },
 
   onBoardClick: function (e) {
-    console.log(e);
+    if (this.data.state != 0) return;
+
     let pt = controller.pointToXY(e.detail.x - e.target.offsetLeft, e.detail.y - e.target.offsetTop);
     
     // let result = r.addStone(pt.x, pt.y, color);
@@ -103,13 +105,21 @@ Page({
       console.log(board_info.predict);
       controller.init(board_info.board_clip_pos || 9, board_info.stone, board_info.next_move_color, board_info.answer, board_info.predict);
       this.setData({
-        "enable_answer_mode": !!board_info.moves,
-        "enable_battle_mode": !!board_info.predict,
+        "right_answer": false,
+        "title": content.title,
+        "content": content.content,
       });
     }
     this.setData({
       "content_text":content.content
     });
+  },
+
+  onAnswerRight: function(right) {
+    this.setData({"right_answer":right});
+    if (right) {
+      // notify 
+    }
   },
 
   onExit: function() {

@@ -20,15 +20,15 @@
   {{progress_info}}
   </view>
   <view id="item-list">
-    <view class="question-item" wx:for="{{question_list}}" catchtap="onQuestionSelect" data-question-id="{{item.id}}">
+    <view class="question-item" wx:for="{{question_list}}" catchtap="onQuestionSelect" data-question-index="{{index}}" data-question-id="{{item.id}}">
       <image wx:if="{{item.done}}" class="question-done" mode="aspectFit" src="../images/right.png" />
       <image class="question-thumb"/>
     </view>
   </view> 
   <view id="item-bottom-view">
-    <view id="navigateBack">返回</view>
+    <view id="navigateBack" catchtap="onReturnBtn">返回</view>
     <view id="progress-info">TESTTESTTESTTEST</view>
-    <view id="go">继续做题</view>
+    <view id="go" catchtap="onContinueBtn">继续做题</view>
   </view>
   </block>
 </view>

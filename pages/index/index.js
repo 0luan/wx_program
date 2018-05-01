@@ -11,19 +11,26 @@ Page({
       { id: 1, title: "AAAAA" },
       { id: 1, title: "AAAAA" },
     ],
-    question_list: [
-      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
-      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
-      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
-      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
-      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
-      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
-      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
-      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
-      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
-      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
-      { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
-    ],
+    question_list: {
+      1: { category_id: 1, img: "" , done: true},
+      2: { category_id: 1, img: "" },
+      3: { category_id: 1, img: "" },
+      5: { category_id: 1, img: "" },
+      9: { category_id: 1, img: "" },
+    },
+    // question_list: [
+    //   { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+    //   { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+    //   { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+    //   { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+    //   { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+    //   { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+    //   { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+    //   { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+    //   { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+    //   { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+    //   { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
+    // ],
     progress_info: "TESTTESTTEST",
     
   },
@@ -118,8 +125,26 @@ Page({
     });
   },
 
-  onQuestionDone: function(id) {
+  onReturnBtn: function() {
+    this.setData({
+      category_id: 0,
+    });
+  },
+  onContinueBtn: function() {
 
+  },
+
+  onQuestionDone: function(category_id, index, id) {
+    console.log('onQuestionDone');
+    if (this.data.category_id != category_id)
+      return;
+
+    let key = "question_list." + id;
+    let obj = this.data.question_list[id];
+    obj.done = true;
+    this.setData({
+      [key] : obj
+    });
   },
 
   onCategorySelect: function(e) {
@@ -130,9 +155,11 @@ Page({
   },
 
   onQuestionSelect: function(e) {
-    let id = 1;
+    if (this.data.category_id == 0) return;
+    let id = 9;
+    let index = 4;
     wx.navigateTo({
-      url: '../../pages/inner/inner?id=' + id
+      url: '../../pages/inner/inner?category_id=' + this.data.category_id + '&id=' + id + '&index=' + index,
     })
   }
 })

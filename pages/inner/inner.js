@@ -4,7 +4,7 @@ import { GoJudger } from "../../go/go_judger.js"
 
 var controller = GoController();
 
-var content = '{"title":"title","content":"content","board":{"info":{},"answer":[{"x":17,"y":18,"text":""},{"x":16,"y":18,"text":""},{"x":14,"y":18,"text":""},{"x":13,"y":18,"text":""},{"x":13,"y":17,"text":""}],"stone":{"black":[{"x":18,"y":17},{"x":17,"y":17},{"x":16,"y":17},{"x":15,"y":17},{"x":14,"y":17}],"white":[{"x":17,"y":14},{"x":17,"y":16},{"x":16,"y":16},{"x":15,"y":16},{"x":14,"y":16},{"x":13,"y":16},{"x":11,"y":17},{"x":11,"y":16},{"x":12,"y":17}]},"predict":{"R19":{"response":{"x":16,"y":18,"text":""},"O19":{"response":{"x":13,"y":18,"text":""},"N18":{"correct":true}}},"O19":{"response":{"x":15,"y":18,"text":""},"R19":{"response":{"x":13,"y":17,"text":""},"N19":{"response":{"x":12,"y":18,"text":""}}}},"N18":{"response":{"x":14,"y":18,"text":"","correct":false}}}}}';
+var content = '{"title":"title","content":"content","board":{"info":{"clip_pos":9,"next_move_color":0},"answer":[{"x":17,"y":18,"text":""},{"x":16,"y":18,"text":""},{"x":14,"y":18,"text":""},{"x":13,"y":18,"text":""},{"x":13,"y":17,"text":""}],"stone":{"black":[{"x":18,"y":17},{"x":17,"y":17},{"x":16,"y":17},{"x":15,"y":17},{"x":14,"y":17}],"white":[{"x":17,"y":14},{"x":17,"y":16},{"x":16,"y":16},{"x":15,"y":16},{"x":14,"y":16},{"x":13,"y":16},{"x":11,"y":17},{"x":11,"y":16},{"x":12,"y":17}]},"predict":{"R19":{"response":{"x":16,"y":18,"text":""},"O19":{"response":{"x":13,"y":18,"text":""},"N18":{"correct":true}}},"O19":{"response":{"x":15,"y":18,"text":""},"R19":{"response":{"x":13,"y":17,"text":""},"N19":{"response":{"x":12,"y":18,"text":""}}}},"N18":{"response":{"x":14,"y":18,"text":"","correct":false}}}}}';
 var cur_page_index = 0;
 
 Page({
@@ -14,6 +14,7 @@ Page({
    */
   data: {
     right_answer: false,
+    show_navigate_panel: false,
   },
 
   /**
@@ -21,6 +22,14 @@ Page({
    */
   onLoad: function (options) {
     let id = options.id;
+    let category_id = options.category_id;
+    let index = options.index;
+
+    this.setData({
+      "id": id,
+      "index": index,
+      "category_id": category_id,
+    })
     this.loadContent(content);
   },
 
@@ -78,8 +87,6 @@ Page({
   },
 
   onBoardClick: function (e) {
-    if (this.data.state != 0) return;
-
     let pt = controller.pointToXY(e.detail.x - e.target.offsetLeft, e.detail.y - e.target.offsetTop);
     
     // let result = r.addStone(pt.x, pt.y, color);
@@ -94,7 +101,11 @@ Page({
     // }
     // if (color == 0) color = 1;
     // else color = 0;
-    controller.onBoardClick(pt.x, pt.y);
+    controller.onBoardClick(pt.x, pt.y, (text) => {
+      this.setData({
+        content_text: text,
+      })
+    });
   },
 
   loadContent: function(content) {
@@ -103,7 +114,7 @@ Page({
     var board_info = content.board;
     if (board_info) {
       console.log(board_info.predict);
-      controller.init(board_info.board_clip_pos || 9, board_info.stone, board_info.next_move_color, board_info.answer, board_info.predict);
+      controller.init(board_info.info.board_clip_pos || 9, board_info.stone, board_info.info.next_move_color, board_info.answer, board_info.predict);
       this.setData({
         "right_answer": false,
         "title": content.title,
@@ -115,10 +126,19 @@ Page({
     });
   },
 
+  goNextQuestion: function() {
+    let obj = getApp().getNextQuestion(category_id, index);
+    if (obj && obj.next_question_id != -1) {
+
+    } else {
+
+    }
+  },
+
   onAnswerRight: function(right) {
     this.setData({"right_answer":right});
     if (right) {
-      // notify 
+      getApp().onQuestionDone(this.data.category_id, this.data.id);
     }
   },
 
@@ -127,35 +147,44 @@ Page({
   },
 
   onRestart: function() {
-
+    this.onHideAnswer();
   },
 
   onUndo: function () {
-
+    controller.unDo();
   },
 
-  onShowAnswer: function () {
-
-  },
 
   onShare: function () {
 
   },
 
-  onTryMove: function() {
 
-  },
-
-  onPrevMove: function() {
-    let text = controller.prevMove();
+  onShowAnswer: function () {
+    controller.setAnswerMode(true);
     this.setData({
-      "content_text": text == null ? JSON.parse(content).content : text,
+      show_navigate_panel: true,
     });
+  },
+  onHideAnswer: function () {
+    controller.setAnswerMode(false);
+    this.setData({
+      show_navigate_panel: false,
+    });
+  },
+  onPrevMove: function() {
+    let has_prev = controller.prevMove((text) => {
+      this.setData({
+        "content_text": text,
+      });
+    });
+
   }, 
   onNextMove: function() {
-    let text = controller.nextMove();
-    this.setData({
-      "content_text": text == null ? content.content : text,
+    let has_next = controller.nextMove((text) => {
+      this.setData({
+        "content_text": text,
+      });
     });
   }
 });

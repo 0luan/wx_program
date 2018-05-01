@@ -21,7 +21,7 @@ export function Board() {
   var star_pos = [{x:3, y:3}, {x:3, y:9}, {x:3, y:15}, {x:9, y:3}, {x:9, y:9}, {x:9, y:15}, {x:15, y:3}, {x:15, y:9}, {x:15, y:15}];
 
   return {
-    init: function(clip_pos, id) {
+    init: function(clip_pos, id, refresh = true) {
       console.log("board.init");
       clip_pos_start = clip_pos;
       width = wx.getSystemInfoSync().windowWidth;
@@ -132,7 +132,11 @@ export function Board() {
         }
       }
 
-      ctx.draw();
+      if (refresh)
+        ctx.draw();
+    },
+    draw: function() {
+      ctx.draw(true);
     },
 
     saveState: function() {

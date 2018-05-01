@@ -48,7 +48,7 @@
 
 		</div>
 		
-		<canvas id="tmp_board" width="108px" height="108px" />
+		<canvas id="tmp_board" width="96px" height="96px" />
 		
 	</div>
 
@@ -217,7 +217,7 @@
 		
 		// 生成缩略图
 		var tmp = Board();
-		tmp.init("tmp_board", 108);
+		tmp.init("tmp_board", 96);
 		for (let i = 0; i != result.board.stone.black.length; ++i) {
 			tmp.addStone(result.board.stone.black[i].x, result.board.stone.black[i].y, 1, '');
 		}

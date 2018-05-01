@@ -47,6 +47,7 @@ App({
     cur_category_id: 0,
     cur_category_list: [],
 
+    progress_info: {},
 
   },
 
@@ -56,10 +57,38 @@ App({
   setQuestionListener: function(listener) {
     this.globalData.question_listener = listener;
   },
-  onQuestionDone: function(id) {
-    if (this.globalData.question_listener) {
-      this.globalData.question_listener.onQuestionDone(id);
+  onQuestionDone: function(category_id, id) {
+    console.log('app.onQuestionDone', category_id, id);
+    if (this.globalData.progress_info[category_id] == undefined)
+      this.globalData.progress_info[category_id] = [];
+
+    if (this.globalData.progress_info[category_id].indexOf(id) == -1) {
+      this.globalData.progress_info[category_id].push(id);
+      if (this.globalData.question_listener) {
+        console.log('app.onQuestionDone notify', category_id, id);
+        this.globalData.question_listener.onQuestionDone(category_id, id);
+      }
+      wx.setStorage({
+        key:"progress_info",
+        data: this.globalData.progress_info,
+      });
     }
+  },
+  getNextQuestion: function(category_id, index) {
+    if (this.globalData.cur_category_id != category_id
+      || !this.globalData.cur_category_list 
+      || ++index >= this.globalData.cur_cagegory_list.length)
+      return {
+        "category_id": category_id,
+        "index": -1,
+        "id": -1,
+      }
+    else 
+      return {
+        "category_id": category_id,
+        "index": index,
+        "id": this.globalData.cur_category_list[index],     
+      }
   }
 
 })

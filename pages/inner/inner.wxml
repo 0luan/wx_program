@@ -5,12 +5,19 @@
       <cover-view wx:if="{{right_answer}}" class="board-cover-img" style="width: 128px; height: 128px;margin: 50px auto;">
         <cover-image src="../images/right.png" style="width: 128px; height: 128px;"/>
       </cover-view>
-      <cover-view wx:if="{{right_answer}}" class="board-cover-btn" style="background-color:#74bf2d;">下一题</cover-view>
+      <cover-view wx:if="{{right_answer}}" class="board-cover-btn" style="background-color:#74bf2d;" catchtap="goNextQuestion">下一题</cover-view>
     </cover-view>
   </canvas>
 
   <view id="title">{{title}}</view>
   <view id="text-content">这是解说：{{content_text}}</view>
+
+    <view id="navigate-panel" wx:if="{{show_navigate_panel}}">
+      <view id="nav-prev" catchtap="onPrevMove"><image src="../images/prev.png" style="height:36px;width:36px;" mode="aspectFit" /></view>
+      <view id="nav-next" catchtap="onNextMove"><image src="../images/next.png" style="height:36px;width:36px;" mode="aspectFit" /></view>
+    </view>
+    <view id="navigate-panel-after" wx:if="{{show_navigate_panel}}"></view>
+
   <view id="bottom-panel">
     <view class="bottom-text-btn" catchtap="onExit">返回</view>
     <!-- <block hidden>
@@ -31,7 +38,8 @@
     <block hidden="">
       <view class="bottom-text-btn" catchtap="onUndo">悔棋</view>
       <view class="bottom-text-btn" catchtap="onRestart">重做</view>
-      <view class="bottom-text-btn" catchtap="onShowAnswer">提示</view>
+      <view class="bottom-text-btn" catchtap="onShowAnswer" hidden="{{show_navigate_panel}}">答案</view>
+      <view class="bottom-text-btn" catchtap="onHideAnswer" hidden="{{!show_navigate_panel}}">X</view>
       <view class="bottom-text-btn" catchtap="onShare">分享</view>
     </block>
   </view>

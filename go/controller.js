@@ -14,10 +14,10 @@ export function GoController() {
   var mode = BATTLE_MODE;
   var next_move_color = 1;
 
-  // 栈，保存每一步的吃子，以便后退时使用
+  // 栈，保存显示答案时每一步的吃子，以便后退时使用
   var dead_moves_stack = []; 
 
-  var init_stones = {}; // 初始固定的棋子
+  var init_info = {};
 
   var answer_moves = []; // 答案
   var cur_answer_index = -1;
@@ -25,33 +25,42 @@ export function GoController() {
   var predict_moves = {}; // 预测用户点击
   var cur_predict_tree;
 
-  var try_mode_restore_storage = {};
+  //var try_mode_restore_storage = {};
 
+  var undo_info = {
+    moves_stack: [],
+    deads_stack: [],
+    predict_stack: [],
+  };
 
   return {
     ANSWER_MODE: ANSWER_MODE,
     BATTLE_MODE: BATTLE_MODE,
     TRY_MODE: TRY_MODE,
     init: function(board_clip_pos, init, next_move, answer, predict) {
+      init_info.board_clip_pos = board_clip_pos;
+      init_info.init_stones = init;
+      init_info.next_move_color = next_move;
+
       board = Board();
-      board.init(board_clip_pos, "board");
+      board.init(board_clip_pos, "board", false);
 
       judger = GoJudger();
       judger.init();
 
-      init_stones = init;
       if (init.black) {
         for (let i = 0; i != init.black.length; ++i) {
           judger.addStone(init.black[i].x, init.black[i].y, 1);
-          board.addStone(init.black[i].x, init.black[i].y, 1, init.black[i].note);
+          board.addStone(init.black[i].x, init.black[i].y, 1, init.black[i].note, false);
         }
       }
       if (init.white) {
         for (let i = 0; i != init.white.length; ++i) {
           judger.addStone(init.white[i].x, init.white[i].y, 0);
-          board.addStone(init.white[i].x, init.white[i].y, 0, init.white[i].note);
+          board.addStone(init.white[i].x, init.white[i].y, 0, init.white[i].note, false);
         }
       }
+      board.draw();
 
       next_move_color = next_move;
       answer_moves = answer;
@@ -82,7 +91,7 @@ export function GoController() {
     // },
 
     //wx.showModal({title:'test',content:'content',showCancel:false})
-    onBoardClick: function(x, y) {
+    onBoardClick: function(x, y, settext) {
       switch (mode) {
         // 答题 
         case BATTLE_MODE:
@@ -91,6 +100,7 @@ export function GoController() {
           let index = String.fromCharCode(65+x) + (y+1);
           console.log(index, cur_predict_tree);
           if (cur_predict_tree[index]) {
+            undo_info.predict_stack.push(cur_predict_tree);
             cur_predict_tree = cur_predict_tree[index];
             {
               this.addStone(x, y, next_move_color);
@@ -98,9 +108,10 @@ export function GoController() {
             if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
             if (cur_predict_tree.correct != undefined) {
               if (cur_predict_tree.correct) {
-                getApp().getCurrentPage().setData({ state: 1 });
+                settext(cur_predict_tree.text ? cur_predict_tree.text : "恭喜答对");
+                getCurrentPages()[getCurrentPages().length - 1].onAnswerRight(true);
               } else {
-                getApp().getCurrentPage().setData({ state: 2 });
+                settext(cur_predict_tree.text ? cur_predict_tree.text : "失败，重来吧");
               }
               return;
             }
@@ -112,12 +123,30 @@ export function GoController() {
             }
             if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
 
-            if (cur_predict_tree.response.text)
-              wx.showModal({ title: 'test', content: cur_predict_tree.response.text, showCancel: false });
+            settext(cur_predict_tree.response.text);
           } else {
             wx.showModal({ title: 'test', content: "wrong answer", showCancel: false });
           }
         break;
+      }
+    },
+    unDo: function() {
+      if (!undo_info.moves_stack || !undo_info.deads_stack)
+        return;
+
+      let to_add = undo_info.deads_stack.pop();
+      let to_remove = undo_info.moves_stack.pop();
+      
+      judger.removeStone(to_remove.x, to_remove.y);
+      board.removeStone(to_remove.x, to_remove.y);
+      for (let i = 0; i != to_add.length; ++i) {
+        judger.addStone(to_add[i].x, to_add[i].y, to_add[i].color);
+        board.addStone(to_add[i].x, to_add[i].y, to_add[i].color);
+      }
+      if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
+      if (next_move_color != init_info.next_move_color) {
+        cur_predict_tree = undo_info.predict_stack.pop();
+        this.unDo();
       }
     },
 
@@ -130,10 +159,25 @@ export function GoController() {
       board.addStone(x, y, color, note);
       for (let i = 0; i != deads.length; ++i)
         board.removeStone(deads[i].x, deads[i].y);
+
+      if (mode == BATTLE_MODE) {
+        undo_info.moves_stack.push({"x":x ,"y":y, "color":color, "note":note});
+        undo_info.deads_stack.push(deads);
+      }
     },
 
-    prevMove: function() {
-      if (cur_answer_index < 0 || cur_answer_index >= answer_moves.length) return;
+    hasAnswer: function() {
+      return answer_moves.length > 0;
+    },
+    setAnswerMode: function(val) {
+      this.init(init_info.board_clip_pos, init_info.init_stones, init_info.next_move_color, answer_moves, predict_moves)
+      mode = val? ANSWER_MODE : BATTLE_MODE;
+      cur_answer_index = -1;
+      cur_predict_tree = predict_moves;
+    },
+    prevMove: function(settext) {
+      if (mode != ANSWER_MODE) return false;
+      if (cur_answer_index < 0 || cur_answer_index >= answer_moves.length) false;
       let deads = dead_moves_stack.pop();
       let to_remove_move = answer_moves[cur_answer_index];
       board.removeStone(to_remove_move.x, to_remove_move.y);
@@ -145,13 +189,15 @@ export function GoController() {
       --cur_answer_index;
       if (cur_answer_index >= 0)
         if (answer_moves[cur_answer_index].text)
-          return answer_moves[cur_answer_index].text;
+          settext(answer_moves[cur_answer_index].text);
         else
-          return "";
-      else return null;
+          settext("");
+      
+      return this.hasPrevMove();
     },
-    nextMove: function() {
-      if (cur_answer_index == answer_moves.length-1) return;
+    nextMove: function(settext) {
+      if (mode != ANSWER_MODE) return false;
+      if (cur_answer_index == answer_moves.length-1) return false;
 
       ++cur_answer_index;
       if (cur_answer_index < answer_moves.length) {
@@ -160,18 +206,19 @@ export function GoController() {
         if (deads === false) console.error('add stone error');
         else {
           dead_moves_stack.push(deads);
-          board.addStone(to_add_move.x, to_add_move.y, to_add_move.color, "");
+          board.addStone(to_add_move.x, to_add_move.y, to_add_move.color, ""+(cur_answer_index + 1));
           for(let i = 0; i != deads.length; ++i) {
             board.removeStone(deads[i].x, deads[i].y);
           }
-          if (to_add_move.text) return to_add_move.text;
-          else return "";
+          if (to_add_move.text) settext(to_add_move.text);
+          else settext("");
         }
       } else {
         console.log('no next move');
       }
-      return null;
-    }
-
+      return this.hasNextMove();
+    },
+    hasPrevMove: function () { return cur_answer_index >= 0 && cur_answer_index < (answer_moves.length - 1); },
+    hasNextMove: function () { return cur_answer_index <= (answer_moves - 1); },
   }
 }

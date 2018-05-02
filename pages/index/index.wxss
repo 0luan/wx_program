@@ -1,25 +1,22 @@
+@import "../font.wxss";
+
 #bg-image {
   position: absolute;
   width: 100%;
   height: 100%;  
   z-index: -1;
 }
-#category-title {
-  padding-top: 22px;
-  margin-bottom: 22px;
-  font-size: 28px;
-  text-align: center;
-}
 
 #category-id-container {
-
+  padding-top: 22px;
 }
 
 .category-item {
   padding-top: 10px;
   padding-bottom: 10px;
   text-align: center;
-  font-size: 22px;
+  font-size: 32px;
+  font-family: zzzz;
 }
 
 #note {

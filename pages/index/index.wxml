@@ -2,7 +2,6 @@
   <image id="bg-image" src="../images/bg.jpg" />
   <block wx:if="{{category_id==0}}">
   <view id="category-list">
-    <view id="category-title">目录</view>
     <view id="category-id-container">
       <view class="category-item" wx:for="{{category_list}}" data-category-id="{{item.id}}" catchtap="onCategorySelect">
         <text>{{item.title}}</text>
@@ -11,7 +10,7 @@
   </view>
 
   <view id="note">
-    Web时代,面包屑导航是万金油,人人都要来一发;但是,Hozin劝告诸位:它绝对不适合移动端界面。
+    {{note_info}}
   </view>
   </block>
 

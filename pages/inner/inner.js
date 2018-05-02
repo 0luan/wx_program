@@ -29,7 +29,9 @@ Page({
       "id": id,
       "index": index,
       "category_id": category_id,
-    })
+    });
+
+    this.fetchData
     this.loadContent(content);
   },
 
@@ -86,6 +88,10 @@ Page({
 
   },
 
+  fetchData: function(id) {
+
+  },
+
   onBoardClick: function (e) {
     let pt = controller.pointToXY(e.detail.x - e.target.offsetLeft, e.detail.y - e.target.offsetTop);
     
@@ -128,8 +134,13 @@ Page({
 
   goNextQuestion: function() {
     let obj = getApp().getNextQuestion(category_id, index);
-    if (obj && obj.next_question_id != -1) {
-
+    if (obj && obj.id != -1) {
+      this.setData({
+        "id": obj.id,
+        "index": obj.index,
+        "category_id": obj.category_id,
+      });
+      this.fetchData(obj.id);
     } else {
 
     }
@@ -138,7 +149,7 @@ Page({
   onAnswerRight: function(right) {
     this.setData({"right_answer":right});
     if (right) {
-      getApp().onQuestionDone(this.data.category_id, this.data.id);
+      getApp().onQuestionDone(this.data.category_id, this.data.index, this.data.id);
     }
   },
 

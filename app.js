@@ -33,13 +33,14 @@ App({
       }
     })
 
-    // 获取做题进度
-    wx.getStorage({
-      key: "progress_info",
-      complete(res) {
-        console.log(res);
+    try {
+      let value = wx.getStorageSync('progress_info')
+      if (value) {
+        this.globalData.progress_info = value;
       }
-    });
+    } catch (e) {
+      // Do something when catch error
+    }
   },
   globalData: {
     userInfo: null,
@@ -51,13 +52,18 @@ App({
 
   },
 
-  setCurCategory: function(id, list) {
+  getProgressInfo: function(category_id) {
+    return this.globalData.progress_info[category_id];
+  },
 
+  setCurCategory: function(id, list) {
+    this.globalData.cur_category_id = id;
+    this.globalData.cur_category_list = list;
   },
   setQuestionListener: function(listener) {
     this.globalData.question_listener = listener;
   },
-  onQuestionDone: function(category_id, id) {
+  onQuestionDone: function(category_id, index, id) {
     console.log('app.onQuestionDone', category_id, id);
     if (this.globalData.progress_info[category_id] == undefined)
       this.globalData.progress_info[category_id] = [];
@@ -66,7 +72,7 @@ App({
       this.globalData.progress_info[category_id].push(id);
       if (this.globalData.question_listener) {
         console.log('app.onQuestionDone notify', category_id, id);
-        this.globalData.question_listener.onQuestionDone(category_id, id);
+        this.globalData.question_listener.onQuestionDone(category_id, index, id);
       }
       wx.setStorage({
         key:"progress_info",

@@ -129,7 +129,6 @@ export function GoController() {
               } else {
                 settext(cur_predict_tree.response.text ? cur_predict_tree.response.text : "失败，重来吧");
               }
-              return;
             } else {
               settext(cur_predict_tree.response.text);
             }

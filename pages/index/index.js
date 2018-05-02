@@ -139,6 +139,7 @@ Page({
               }
               result_list.push(item);
             }
+            getApp().setCurCategory(id, result_list);
             this.setData({question_list: result_list});
           } else {
 
@@ -168,12 +169,15 @@ Page({
     console.log('onQuestionDone', category_id, index, id);
     if (this.data.category_id != category_id)
       return;
-
+    let done_question_id = getApp().getProgressInfo(id);
+    let result_list = getApp().getCurCategoryList();
+    let progress_info = "已完成(" + done_question_id.length + "/" + data.question_list.length + ")";
     let key = "question_list[" + (index) +"]";
     let obj = this.data.question_list[index];
     obj.done = true;
     this.setData({
-      [key] : obj
+      [key] : obj,
+      progress_info: progress_info,
     });
   },
 

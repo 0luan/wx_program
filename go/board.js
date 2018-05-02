@@ -445,16 +445,27 @@ export function Board() {
 
       ctx.setFillStyle('white');
       ctx.clearRect(pos_x, pos_y, unit_size, unit_size);
-
       ctx.setLineWidth(1);
       ctx.setStrokeStyle('black');
-      ctx.moveTo(pos_x, pos_y + 0.5*unit_size);
-      ctx.lineTo(pos_x + unit_size, pos_y + 0.5*unit_size);
-      ctx.stroke();
+      if (clip_pos_start > 0) {
+        ctx.moveTo(pos_x, pos_y + 0.5 * unit_size);
+        ctx.lineTo(x == 18 ? pos_x + 0.5 * unit_size : pos_x + unit_size, pos_y + 0.5 * unit_size);
+        ctx.stroke();
 
-      ctx.moveTo(pos_x + 0.5 * unit_size, pos_y);
-      ctx.lineTo(pos_x + 0.5 * unit_size, pos_y + unit_size);
-      ctx.stroke();
+        ctx.moveTo(pos_x + 0.5 * unit_size, pos_y);
+        ctx.lineTo(pos_x + 0.5 * unit_size, y == 18 ? pos_y + 0.5 * unit_size : pos_y + unit_size);
+        ctx.stroke();
+      } else {
+        ctx.moveTo(x==0 ? pos_x + 0.5 * unit_size : pos_x, pos_y + 0.5 * unit_size);
+        ctx.lineTo(x==18 ? pos_x + 0.5 * unit_size : pos_x + unit_size, pos_y + 0.5 * unit_size);
+        ctx.stroke();
+
+        ctx.moveTo(pos_x + 0.5 * unit_size, y==0 ? pos_y + 0.5 * unit_size : pos_y);
+        ctx.lineTo(pos_x + 0.5 * unit_size, y==18 ? pos_y + 0.5 * unit_size : pos_y + unit_size);
+        ctx.stroke();
+      }
+
+
 
       for (let i = 0; i != star_pos.length; ++i) {
         if (x != star_pos[i].x || y != star_pos[i].y) continue;

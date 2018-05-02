@@ -4,7 +4,7 @@ import { GoJudger } from "../../go/go_judger.js"
 
 var controller = GoController();
 
-var content = '{"title":"title","content":"content","board":{"info":{"clip_pos":9,"next_move_color":0},"answer":[{"x":17,"y":18,"text":""},{"x":16,"y":18,"text":""},{"x":14,"y":18,"text":""},{"x":13,"y":18,"text":""},{"x":13,"y":17,"text":""}],"stone":{"black":[{"x":18,"y":17},{"x":17,"y":17},{"x":16,"y":17},{"x":15,"y":17},{"x":14,"y":17}],"white":[{"x":17,"y":14},{"x":17,"y":16},{"x":16,"y":16},{"x":15,"y":16},{"x":14,"y":16},{"x":13,"y":16},{"x":11,"y":17},{"x":11,"y":16},{"x":12,"y":17}]},"predict":{"R19":{"response":{"x":16,"y":18,"text":""},"O19":{"response":{"x":13,"y":18,"text":""},"N18":{"correct":true}}},"O19":{"response":{"x":15,"y":18,"text":""},"R19":{"response":{"x":13,"y":17,"text":""},"N19":{"response":{"x":12,"y":18,"text":""}}}},"N18":{"response":{"x":14,"y":18,"text":"","correct":false}}}}}';
+var content = '{"title":"第94题 白先","content":"这是黑棋成功打入白棋星加大飞守角阵地的结果。白棋一路立，黑棋脱先，现在黑棋是死形。","board":{"info":{"clip_pos":9,"next_move_color":0},"answer":[{"x":15,"y":17,"text":""},{"x":15,"y":16,"text":""},{"x":16,"y":16,"text":""},{"x":16,"y":17,"text":""},{"x":12,"y":18,"text":""},{"x":15,"y":18,"text":""},{"x":13,"y":18,"text":""},{"x":14,"y":17,"text":""},{"x":14,"y":18,"text":""}],"stone":{"black":[{"x":17,"y":16},{"x":17,"y":17},{"x":14,"y":16},{"x":13,"y":16},{"x":13,"y":17},{"x":12,"y":17}],"white":[{"x":17,"y":15},{"x":16,"y":15},{"x":15,"y":15},{"x":14,"y":15},{"x":13,"y":15},{"x":12,"y":15},{"x":12,"y":16},{"x":11,"y":17},{"x":10,"y":17},{"x":11,"y":18}]},"predict":{"P17":{"response":{"x":15,"y":17,"text":""},"N19":{"response":{"x":16,"y":16,"text":""},"Q19":{"response":{"x":17,"y":18,"text":""},"P19":{"response":{"x":14,"y":18,"text":"","correct":false}}}},"Q17":{"response":{"x":16,"y":17,"text":""},"N19":{"response":{"x":14,"y":18,"text":""},"M19":{"response":{"x":14,"y":17,"text":""},"S17":{"response":{"x":18,"y":17,"text":"","correct":false}}}}}},"P18":{"response":{"x":15,"y":16,"text":""},"Q17":{"response":{"x":16,"y":17,"text":""},"M19":{"response":{"x":15,"y":18,"text":""},"N19":{"response":{"x":14,"y":17,"text":""},"O19":{"correct":true}}}}}}}}';
 var cur_page_index = 0;
 
 Page({
@@ -29,9 +29,7 @@ Page({
       "id": id,
       "index": index,
       "category_id": category_id,
-    });
-
-    this.fetchData
+    })
     this.loadContent(content);
   },
 
@@ -88,10 +86,6 @@ Page({
 
   },
 
-  fetchData: function(id) {
-
-  },
-
   onBoardClick: function (e) {
     let pt = controller.pointToXY(e.detail.x - e.target.offsetLeft, e.detail.y - e.target.offsetTop);
     
@@ -134,13 +128,8 @@ Page({
 
   goNextQuestion: function() {
     let obj = getApp().getNextQuestion(category_id, index);
-    if (obj && obj.id != -1) {
-      this.setData({
-        "id": obj.id,
-        "index": obj.index,
-        "category_id": obj.category_id,
-      });
-      this.fetchData(obj.id);
+    if (obj && obj.next_question_id != -1) {
+
     } else {
 
     }
@@ -179,6 +168,7 @@ Page({
   },
   onHideAnswer: function () {
     controller.setAnswerMode(false);
+    this.loadContent(content);
     this.setData({
       show_navigate_panel: false,
     });

@@ -39,7 +39,7 @@
 		</div>
 		
 		
-		解说：<textarea id="text" /><button id="set_text" type="button">添加解说</button>
+		解说：<textarea id="text"></textarea><button id="set_text" type="button">添加解说</button>
 
 		
 		<button id="finish" type="button">生成结果</button>
@@ -124,7 +124,7 @@
 	
 	restoreBoard = function() {
 		board = Board();
-		board.init();
+		board.init("board");
 		judger = GoJudger();
 		judger.init();
 		

@@ -106,6 +106,7 @@ export function GoController() {
               this.addStone(x, y, next_move_color);
             }
             if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
+
             if (cur_predict_tree.correct != undefined) {
               if (cur_predict_tree.correct) {
                 settext(cur_predict_tree.text ? cur_predict_tree.text : "恭喜答对");
@@ -116,16 +117,24 @@ export function GoController() {
               return;
             }
 
-
             if (cur_predict_tree.response.x != undefined && cur_predict_tree.response.y != undefined)
             {
               this.addStone(cur_predict_tree.response.x, cur_predict_tree.response.y, next_move_color);
+              
             }
-            if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
-
-            settext(cur_predict_tree.response.text);
-          } else {
-            wx.showModal({ title: 'test', content: "wrong answer", showCancel: false });
+            if (cur_predict_tree.response.correct != undefined) {
+              if (cur_predict_tree.response.correct) {
+                settext(cur_predict_tree.response.text ? cur_predict_tree.response.text : "恭喜答对");
+                getCurrentPages()[getCurrentPages().length - 1].onAnswerRight(true);
+              } else {
+                settext(cur_predict_tree.response.text ? cur_predict_tree.response.text : "失败，重来吧");
+              }
+              return;
+            } else {
+              settext(cur_predict_tree.response.text);
+            }
+            
+            if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;   
           }
         break;
       }
@@ -192,7 +201,7 @@ export function GoController() {
           settext(answer_moves[cur_answer_index].text);
         else
           settext("");
-      
+      if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
       return this.hasPrevMove();
     },
     nextMove: function(settext) {
@@ -202,16 +211,17 @@ export function GoController() {
       ++cur_answer_index;
       if (cur_answer_index < answer_moves.length) {
         var to_add_move = answer_moves[cur_answer_index];
-        var deads = judger.addStone(to_add_move.x, to_add_move.y, to_add_move.color);
+        var deads = judger.addStone(to_add_move.x, to_add_move.y, next_move_color);
         if (deads === false) console.error('add stone error');
         else {
           dead_moves_stack.push(deads);
-          board.addStone(to_add_move.x, to_add_move.y, to_add_move.color, ""+(cur_answer_index + 1));
+          board.addStone(to_add_move.x, to_add_move.y, next_move_color, ""+(cur_answer_index + 1));
           for(let i = 0; i != deads.length; ++i) {
             board.removeStone(deads[i].x, deads[i].y);
           }
           if (to_add_move.text) settext(to_add_move.text);
           else settext("");
+          if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
         }
       } else {
         console.log('no next move');

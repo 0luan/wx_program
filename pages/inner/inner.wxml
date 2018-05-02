@@ -10,7 +10,7 @@
   </canvas>
 
   <view id="title">{{title}}</view>
-  <view id="text-content">这是解说：{{content_text}}</view>
+  <view id="text-content">{{content_text}}</view>
 
     <view id="navigate-panel" wx:if="{{show_navigate_panel}}">
       <view id="nav-prev" catchtap="onPrevMove"><image src="../images/prev.png" style="height:36px;width:36px;" mode="aspectFit" /></view>

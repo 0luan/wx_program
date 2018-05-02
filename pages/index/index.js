@@ -12,11 +12,11 @@ Page({
       { id: 1, title: "边上死活" },
     ],
     question_list: [
-       { id: 1, category_id: 1, img: "" , done: true},
-       { id: 2, category_id: 1, img: "" },
-       { id: 3, category_id: 1, img: "" },
+       { id: 5, category_id: 1, img: "" , done: true},
        { id: 4, category_id: 1, img: "" },
-       { id: 5, category_id: 1, img: "" },
+       { id: 3, category_id: 1, img: "" },
+       { id: 2, category_id: 1, img: "" },
+       { id: 1, category_id: 1, img: "" },
     ],
     // question_list: [
     //   { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
@@ -32,7 +32,7 @@ Page({
     //   { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
     // ],
     note_info: "更多题目正在录入中，敬请期待",
-    progress_info: "TESTTESTTEST",
+    progress_info: "已完成(0/0）",
     
   },
 
@@ -129,6 +129,7 @@ Page({
           if (data.state) {
             let done_question_id = getApp().getProgressInfo(id).slice(0);
             let result_list = [];
+            let progress_info = "已完成(" + done_question_id.length + "/" + data.question_list.length + ")";
             for (var i = 0; i < data.question_list.length; ++i) {
               let item = data.question_list[i];
               let index = done_question_id.indexOf(item.id);
@@ -168,7 +169,7 @@ Page({
     if (this.data.category_id != category_id)
       return;
 
-    let key = "question_list." + index;
+    let key = "question_list[" + (index) +"]";
     let obj = this.data.question_list[index];
     obj.done = true;
     this.setData({

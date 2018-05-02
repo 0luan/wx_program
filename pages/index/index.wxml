@@ -16,7 +16,7 @@
 
   <block wx:if="{{category_id!=0}}">
   <view id="item-list-title">
-  {{progress_info}}
+  {{item_list_title}}
   </view>
   <view id="item-list">
     <view class="question-item" wx:for="{{question_list}}" catchtap="onQuestionSelect" data-question-index="{{index}}" data-question-id="{{item.id}}">
@@ -26,7 +26,7 @@
   </view> 
   <view id="item-bottom-view">
     <view id="navigateBack" catchtap="onReturnBtn">返回</view>
-    <view id="progress-info">TESTTESTTESTTEST</view>
+    <view id="progress-info">{{progress_info}}</view>
     <view id="go" catchtap="onContinueBtn">继续做题</view>
   </view>
   </block>

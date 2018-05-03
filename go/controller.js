@@ -6,6 +6,7 @@ var cache = {};
 export function GoController() {
   var board;
   var judger;
+  var set_text_callback = null;
 
   const ANSWER_MODE = 0;  // 查看答案
   const BATTLE_MODE = 1;  // 答题模式
@@ -37,7 +38,7 @@ export function GoController() {
     ANSWER_MODE: ANSWER_MODE,
     BATTLE_MODE: BATTLE_MODE,
     TRY_MODE: TRY_MODE,
-    init: function(board_clip_pos, init, next_move, answer, predict) {
+    init: function(board_clip_pos, init, next_move, answer, predict, callback) {
       init_info.board_clip_pos = board_clip_pos;
       init_info.init_stones = init;
       init_info.next_move_color = next_move;
@@ -47,6 +48,8 @@ export function GoController() {
 
       judger = GoJudger();
       judger.init();
+
+      set_text_callback = callback;
 
       if (init.black) {
         for (let i = 0; i != init.black.length; ++i) {
@@ -91,7 +94,7 @@ export function GoController() {
     // },
 
     //wx.showModal({title:'test',content:'content',showCancel:false})
-    onBoardClick: function(x, y, settext) {
+    onBoardClick: function(x, y) {
       switch (mode) {
         // 答题 
         case BATTLE_MODE:
@@ -103,34 +106,34 @@ export function GoController() {
             undo_info.predict_stack.push(cur_predict_tree);
             cur_predict_tree = cur_predict_tree[index];
             {
-              this.addStone(x, y, next_move_color);
+              this.addStone(x, y, next_move_color, "" + (undo_info.predict_stack.length*2-1));
             }
             if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
 
             if (cur_predict_tree.correct != undefined) {
               if (cur_predict_tree.correct) {
-                settext(cur_predict_tree.text ? cur_predict_tree.text : "恭喜答对");
+                set_text_callback && set_text_callback(cur_predict_tree.text ? cur_predict_tree.text : "恭喜答对");
                 getCurrentPages()[getCurrentPages().length - 1].onAnswerRight(true);
               } else {
-                settext(cur_predict_tree.text ? cur_predict_tree.text : "失败，重来吧");
+                set_text_callback && set_text_callback(cur_predict_tree.text ? cur_predict_tree.text : "失败，重来吧");
               }
               return;
             }
 
             if (cur_predict_tree.response.x != undefined && cur_predict_tree.response.y != undefined)
             {
-              this.addStone(cur_predict_tree.response.x, cur_predict_tree.response.y, next_move_color);
+              this.addStone(cur_predict_tree.response.x, cur_predict_tree.response.y, next_move_color, ""+(undo_info.predict_stack.length*2));
               
             }
             if (cur_predict_tree.response.correct != undefined) {
               if (cur_predict_tree.response.correct) {
-                settext(cur_predict_tree.response.text ? cur_predict_tree.response.text : "恭喜答对");
+                set_text_callback && set_text_callback(cur_predict_tree.response.text ? cur_predict_tree.response.text : "恭喜答对");
                 getCurrentPages()[getCurrentPages().length - 1].onAnswerRight(true);
               } else {
-                settext(cur_predict_tree.response.text ? cur_predict_tree.response.text : "失败，重来吧");
+                set_text_callback && set_text_callback(cur_predict_tree.response.text ? cur_predict_tree.response.text : "失败，重来吧");
               }
             } else {
-              settext(cur_predict_tree.response.text);
+              set_text_callback && set_text_callback(cur_predict_tree.response.text);
             }
             
             if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;   
@@ -182,8 +185,13 @@ export function GoController() {
       mode = val? ANSWER_MODE : BATTLE_MODE;
       cur_answer_index = -1;
       cur_predict_tree = predict_moves;
+      undo_info = {
+        moves_stack: [],
+        deads_stack: [],
+        predict_stack: [],
+      };
     },
-    prevMove: function(settext) {
+    prevMove: function() {
       if (mode != ANSWER_MODE) return false;
       if (cur_answer_index < 0 || cur_answer_index >= answer_moves.length) false;
       let deads = dead_moves_stack.pop();
@@ -192,18 +200,18 @@ export function GoController() {
       judger.removeStone(to_remove_move.x, to_remove_move.y);
       for (let i = 0; i != deads.length; ++i) {
         judger.addStone(deads[i].x, deads[i].y, deads[i].color);
-        board.addStone(deads[i].x, deads[i].y, deads[i].color);
+        board.addStone(deads[i].x, deads[i].y, deads[i].color, deads[i].note);
       }
       --cur_answer_index;
       if (cur_answer_index >= 0)
         if (answer_moves[cur_answer_index].text)
-          settext(answer_moves[cur_answer_index].text);
+          set_text_callback && set_text_callback(answer_moves[cur_answer_index].text);
         else
-          settext("");
+          set_text_callback && set_text_callback("");
       if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
       return this.hasPrevMove();
     },
-    nextMove: function(settext) {
+    nextMove: function() {
       if (mode != ANSWER_MODE) return false;
       if (cur_answer_index == answer_moves.length-1) return false;
 
@@ -213,13 +221,16 @@ export function GoController() {
         var deads = judger.addStone(to_add_move.x, to_add_move.y, next_move_color);
         if (deads === false) console.error('add stone error');
         else {
-          dead_moves_stack.push(deads);
+          let tmp = [];
           board.addStone(to_add_move.x, to_add_move.y, next_move_color, ""+(cur_answer_index + 1));
           for(let i = 0; i != deads.length; ++i) {
-            board.removeStone(deads[i].x, deads[i].y);
+            tmp.push(board.removeStone(deads[i].x, deads[i].y));
           }
-          if (to_add_move.text) settext(to_add_move.text);
-          else settext("");
+          dead_moves_stack.push(tmp);
+          if (to_add_move.text) 
+            set_text_callback && set_text_callback(to_add_move.text);
+          else 
+            set_text_callback && set_text_callback("");
           if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
         }
       } else {

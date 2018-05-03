@@ -400,7 +400,7 @@ export function Board() {
       console.log('addStone', x, y, color);
       selected_x = -1;
       selected_y = -1;
-      node_data[x][y] = { "color": color, "note": note };
+      node_data[x][y] = { "x":x, "y":y, "color": color, "note": note };
       console.log(x, y);
       if (clip_pos_start > 0) { 
         x = (x - clip_pos_start + 2) * unit_size;
@@ -434,6 +434,7 @@ export function Board() {
 
     removeStone: function(x, y, refresh = true) {
       console.log('board.removeStone', x, y);
+      let node = node_data[x][y];
       let pos_x, pos_y;
       if (clip_pos_start > 0) {
         pos_x = (x - clip_pos_start + 1.5) * unit_size;
@@ -485,9 +486,10 @@ export function Board() {
         ctx.fill();
 
       }
-
+      node_data[x][y] = null;
       if (refresh)
         ctx.draw(true);
+      return node;
     },
 
     addText: function(x, y, text, refresh = true) {
@@ -498,7 +500,7 @@ export function Board() {
       if (node && node.color != -1) {
         this.addStone(x, y, node.color, text);
       } else {
-        node_data[x][y] = { "color": -1, "note": text };
+        node_data[x][y] = { "x":x, "y":y, "color": -1, "note": text };
 
         if (clip_pos_start > 0) {
           x = (x - clip_pos_start + 2) * unit_size;
@@ -525,6 +527,7 @@ export function Board() {
     },
 
     removeText: function(x, y) {
+      let node = node_data[x][y];
       if (clip_pos_start > 0) {
         x = (x - clip_pos_start + 1.5) * unit_size;
         y = (y - clip_pos_start + 1.5) * unit_size;
@@ -545,6 +548,8 @@ export function Board() {
       ctx.lineTo(x + 0.5 * unit_size, y + unit_size);
       ctx.stroke();
       ctx.draw(true);
+      node_data[x][y] = null;
+      return node;
     },
 
     clear: function() {

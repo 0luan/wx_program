@@ -31,6 +31,7 @@ Page({
     //   { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
     //   { id: 1, category_id: 1, title: "BBBBBBB", img: "" },
     // ],
+    item_list_title: "",
     note_info: "更多题目正在录入中，敬请期待",
     progress_info: "已完成(0/0）",
     
@@ -140,7 +141,10 @@ Page({
               result_list.push(item);
             }
             getApp().setCurCategory(id, result_list);
-            this.setData({question_list: result_list});
+            this.setData({
+              item_list_title: data.title,
+              question_list: result_list
+            });
           } else {
 
           }

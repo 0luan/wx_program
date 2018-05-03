@@ -114,7 +114,16 @@ Page({
     var board_info = content.board;
     if (board_info) {
       console.log(board_info.predict);
-      controller.init(board_info.info.board_clip_pos || 9, board_info.stone, board_info.info.next_move_color, board_info.answer, board_info.predict);
+      controller.init(board_info.info.board_clip_pos || 9, 
+        board_info.stone, 
+        board_info.info.next_move_color, 
+        board_info.answer, board_info.predict, 
+        (text) => {
+        this.setData({
+          "content_text": text,
+        });
+      });
+      
       this.setData({
         "right_answer": false,
         "title": content.title,
@@ -174,18 +183,10 @@ Page({
     });
   },
   onPrevMove: function() {
-    let has_prev = controller.prevMove((text) => {
-      this.setData({
-        "content_text": text,
-      });
-    });
+    let has_prev = controller.prevMove();
 
   }, 
   onNextMove: function() {
-    let has_next = controller.nextMove((text) => {
-      this.setData({
-        "content_text": text,
-      });
-    });
+    let has_next = controller.nextMove();
   }
 });

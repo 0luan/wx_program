@@ -104,14 +104,14 @@ export function GoController() {
           console.log(index, cur_predict_tree);
           if (cur_predict_tree[index]) {
             undo_info.predict_stack.push(cur_predict_tree);
-            cur_predict_tree = cur_predict_tree[index];
+            
             {
               this.addStone(x, y, next_move_color, "" + (undo_info.predict_stack.length*2-1));
             }
             if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
 
-            if (cur_predict_tree.correct != undefined) {
-              if (cur_predict_tree.correct) {
+            if (cur_predict_tree[index].correct != undefined) {
+              if (cur_predict_tree[index].correct) {
                 set_text_callback && set_text_callback(cur_predict_tree.text ? cur_predict_tree.text : "恭喜答对");
                 getCurrentPages()[getCurrentPages().length - 1].onAnswerRight(true);
               } else {
@@ -119,6 +119,7 @@ export function GoController() {
               }
               return;
             }
+            cur_predict_tree = cur_predict_tree[index][0];
 
             if (cur_predict_tree.response.x != undefined && cur_predict_tree.response.y != undefined)
             {

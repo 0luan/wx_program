@@ -43,26 +43,26 @@ function GoJudger() {
 
       let left_dead = false, right_dead = false, up_dead = false, down_dead = false;
       if (left_x >= 0 && stones[left_x][y] != -1 && stones[left_x][y] != color) {
-        console.log('left liberty ', this.countLiberty(left_x, y));
+        //console.log('left liberty ', this.countLiberty(left_x, y));
         left_dead = (this.countLiberty(left_x, y) == 0);
       }
       if (right_x <= LINE_COUNT - 1 && stones[right_x][y] != -1 && stones[right_x][y] != color) {
-        console.log('right liberty ', this.countLiberty(right_x, y));
+        //console.log('right liberty ', this.countLiberty(right_x, y));
         right_dead = (this.countLiberty(right_x, y) == 0);
       }
       if (up_y >= 0 && stones[x][up_y] != -1 && stones[x][up_y] != color) {
-        console.log('up liberty ', this.countLiberty(x, up_y));
+        //console.log('up liberty ', this.countLiberty(x, up_y));
         up_dead = (this.countLiberty(x, up_y) == 0);
       }
       if (down_y <= LINE_COUNT - 1 && stones[x][down_y] != -1 && stones[x][down_y] != color) {
-        console.log('down liberty ', this.countLiberty(x, down_y));
+        //console.log('down liberty ', this.countLiberty(x, down_y));
         down_dead = (this.countLiberty(x, down_y) == 0);
       }
-      console.log(left_dead, right_dead, up_dead, down_dead);
+      //console.log(left_dead, right_dead, up_dead, down_dead);
 
       if (!(left_dead || right_dead || up_dead || down_dead)) {	// 没有吃掉对方棋子
         // 判断自己是否没气
-        console.log('this liberty ', this.countLiberty(x, y));
+        //console.log('this liberty ', this.countLiberty(x, y));
         if (this.countLiberty(x, y) == 0) {
           stones[x][y] = -1;
           return false;
@@ -82,7 +82,7 @@ function GoJudger() {
       if (down_dead && stones[x][down_y] != color) {
         this.removeBlock(x, down_y, deads);
       }
-      console.log(deads);
+      //console.log(deads);
       return deads;
     },
     removeStone: function(x, y) {
@@ -99,7 +99,7 @@ function GoJudger() {
       const down_y = y + 1;
       if (checked_pos[x][y] != -1) return;
 
-      console.log('remove block push x:', x, ' y:', y);
+      //console.log('remove block push x:', x, ' y:', y);
       deads.push({ "x": x, "y": y, "color":color });
       stones[x][y] = -1;
       checked_pos[x][y] = 1;

@@ -92,22 +92,36 @@
 	addCacheToPredict = function(is_correct) {
 		let cur = result.board.predict;
 		for (let i = 0; i != cache.length; ++i) {
+			console.log(i, result.board.predict);
 			let pos = xyToStr(cache[i].x, cache[i].y);
 			let is_input = !!!(i%2);
 			if (is_input) {
 				if (!cur[pos]) {
-					let tmp = {};
-					if (cache[i].text) tmp.text = cache[i].text;
 					if (i == (cache.length - 1) && is_correct)
-						tmp.correct = true;
-					cur[pos] = tmp;
+						cur[pos] = {correct:true};
+					else {
+						cur[pos] = [];
+					}
 				}
 				cur = cur[pos];
 			} else {
-				let tmp = {x: cache[i].x, y: cache[i].y, text: cache[i].text};
-				if (i == (cache.length - 1) && !is_correct)
-					tmp.correct = false;
-				cur.response = tmp;
+				let tmp = null;
+				for (let j = 0; j != cur.length; ++j) {
+					if (cur[j].response.x == cache[i].x && cur[j].response.y == cache[i].y) {
+						tmp = cur[j];
+						break;
+					}
+				}
+				console.log('finded?', i, tmp);
+				if (tmp == null) {
+					console.log(cur, i, cache[i]);
+					tmp = {};				
+					tmp.response = {x: cache[i].x, y: cache[i].y, text: cache[i].text};
+					if (i == (cache.length - 1) && !is_correct)
+						tmp.response.correct = false;
+					cur.push(tmp);
+				}
+				cur = tmp;
 			}
 		}
 		
@@ -148,7 +162,6 @@
 		let pt = board.pointToXY(x, y);
 		x = pt.x, y = pt.y;
 		
-        console.log(x, y);
 		if (!addStone(x, y, color, mode==2?''+(cache.length+1):''))
 			return;
 			
@@ -185,14 +198,32 @@
     });
 	
 	$('#add_correct').click(function() {
+		let tmp = parseInt($('input[name="init_color_sel"]:checked').val());
+		if (cache[cache.length-1].color != tmp) {
+			alert('最后一手棋应为X色');
+			return;
+		}
+		
+		$('input[name="color_sel"]')[(tmp-1)*-1].click();
 		addCacheToPredict(true);
 	});
 	$('#add_error').click(function() {
+		let tmp = parseInt($('input[name="init_color_sel"]:checked').val());
+		if (cache[cache.length-1].color == tmp) {
+			alert('最后一手棋应为X色');
+			return;
+		}
+		
+		$('input[name="color_sel"]')[(tmp-1)*-1].click();
 		addCacheToPredict(false);
 	});
 	$('#clear_cache').click(function() {
+		let tmp = parseInt($('input[name="init_color_sel"]:checked').val());
+		$('input[name="color_sel"]')[(tmp-1)*-1].click();
 		cache = [];
 		$('#cache_predict').text(JSON.stringify(cache));
+		$('#result').text(JSON.stringify(result));
+		restoreBoard();
 	});
 	$('#cache_predict').on('click', 'li', function() {
 		if ($(this).hasClass('selected')) $(this).removeClass('selected');

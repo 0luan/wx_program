@@ -19,6 +19,7 @@
 		标题:<input type="text" id="title" />
 		<input type="radio" name="init_color_sel" value="1" checked="checked"/>黑先
 		<input type="radio" name="init_color_sel" value="0" />白先
+		<select id="category_id"></select><button id="big_board">大棋盘</button>
 		</p>
 		
 
@@ -55,13 +56,24 @@
 	
 <script src="board.js"></script>
 <script>
+	var board_clip = 9;
 	var result = {};
 
 	window.onload=function() {
+		$.ajax({ 
+	    	type : "GET", //提交方式 
+	    	url : "http://192.168.0.231:8080/api?op=list&type=category",//路径 
+	    	success : function(res) {//返回数据根据结果进行相应的处理 
+	    		for (let i = 0; i != res.category_list.length; ++i) {
+	    			$('#category_id').append(`<option value=${res.category_list[i].category_id}>${res.category_list[i].title}</option>`);
+	    		}
+	     	}
+	    }); 
+
 		result.title = "title";
 		result.content = "content";
 		result.board = {};
-		result.board.info = {clip_pos: 9};
+		result.board.info = {clip_pos: board_clip};
 		result.board.answer = [];
 		result.board.stone = {black:[], white:[]};
 		result.board.predict = {};
@@ -69,7 +81,7 @@
 		cache = [];
 	
 		board = Board();
-		board.init("board");
+		board.init("board", 800, board_clip);
 		judger = GoJudger();
 		judger.init();
 	}
@@ -101,8 +113,14 @@
 						cur[pos] = {correct:true};
 					else {
 						cur[pos] = [];
+						if (is_correct)
+							cur[pos].is_correct_branch = true;
 					}
+				} else {
+					if (is_correct)
+						cur[pos].is_correct_branch = true;
 				}
+
 				cur = cur[pos];
 			} else {
 				let tmp = null;
@@ -149,7 +167,10 @@
 			addStone(result.board.stone.white[i].x, result.board.stone.white[i].y, 0, '');
 		}
 	}
-	
+	$('#big_board').click(function() {
+		board_clip = 7;
+		window.onload();
+	});
 	$("#board").click(function(event){
 		var mode = parseInt($('input:radio[name="mode_sel"]:checked').val());	
 
@@ -244,23 +265,24 @@
 	
 	$('#finish').click(function() {
 		// 棋局信息
+		let category_id = $('#category_id')[0].options[$('#category_id')[0].selectedIndex].value();
 		result.board.info.next_move_color = $('input[name="init_color_sel"]:checked').val();
 		
 		// 生成缩略图
 		var tmp = Board();
-		tmp.init("tmp_board", 96);
+		tmp.init("tmp_board", 96, board_clip);
 		for (let i = 0; i != result.board.stone.black.length; ++i) {
 			tmp.addStone(result.board.stone.black[i].x, result.board.stone.black[i].y, 1, '');
 		}
 		for (let i = 0; i != result.board.stone.white.length; ++i) {
 			tmp.addStone(result.board.stone.white[i].x, result.board.stone.white[i].y, 0, '');
 		}
-		console.log(document.getElementById('tmp_board').toDataURL());
+		console.log(document.getElementById('tmp_board').toDataURL().length);
 		
 		// 上传数据
 		$.ajax({ 
 	    	type : "POST", //提交方式 
-	    	url : "http://192.168.0.231:8080/api?op=add&category_id=" + 5 + "&title=title",//路径 
+	    	url : "http://192.168.0.231:8080/api?op=add&category_id=" + category_id + "&title=title",//路径 
 	    	data : "content=" + JSON.stringify(result) + "&thumb=" + document.getElementById('tmp_board').toDataURL().substr("data:image/png;".length),
 	    	dataType: "POST",
 	    	success : function(res) {//返回数据根据结果进行相应的处理 
@@ -270,6 +292,7 @@
 	     	}
 	    }); 
 	});
+
 </script>
 
 </body>

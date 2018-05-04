@@ -21,9 +21,9 @@ function Board() {
   var star_pos = [{x:3, y:3}, {x:3, y:9}, {x:3, y:15}, {x:9, y:3}, {x:9, y:9}, {x:9, y:15}, {x:15, y:3}, {x:15, y:9}, {x:15, y:15}];
 
   return {
-    init: function(id, w) {
+    init: function(id, w, c) {
       console.log("board.init");
-      clip_pos_start = 9;
+      clip_pos_start = c || 9;
       width = w || 800;
       height = width;
       if (clip_pos_start > 0)

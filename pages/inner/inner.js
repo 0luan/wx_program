@@ -33,6 +33,35 @@ Page({
     this.loadContent(content);
   },
 
+  fetchData: function(id) {
+    wx.request({
+      url: "http://39.108.150.51/api/?op=get&id=" + id,
+      data: "",
+      method: "GET",
+      dataType: "json",
+      complete: (res) => {
+        wx.stopPullDownRefresh();
+        console.log(res);
+        if (res.statusCode == 200) {
+          let data = res.data;
+          if (data.state === false) {
+            wx.showModal({
+              title: "错误",
+              content: "获取内容失败，请重试",
+            });
+          } else {
+            this.loadContent(data);
+          }
+        } else {
+          wx.showModal({
+            title: "错误",
+            content: "获取内容失败，请重试",
+          });
+        }
+      }
+    });
+  },
+
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
@@ -109,30 +138,36 @@ Page({
   },
 
   loadContent: function(content) {
-    content = JSON.parse(content);
-    var content_type = content.type;
-    var board_info = content.board;
-    if (board_info) {
-      console.log(board_info.predict);
-      controller.init(board_info.info.board_clip_pos || 9, 
-        board_info.stone, 
-        board_info.info.next_move_color, 
-        board_info.answer, board_info.predict, 
-        (text) => {
-        this.setData({
-          "content_text": text,
+    try {
+      var content_type = content.type;
+      var board_info = content.board;
+      if (board_info) {
+        console.log(board_info.predict);
+        controller.init(board_info.info.board_clip_pos || 9, 
+          board_info.stone, 
+          board_info.info.next_move_color, 
+          board_info.answer, board_info.predict, 
+          (text) => {
+          this.setData({
+            "content_text": text,
+          });
         });
-      });
-      
+        
+        this.setData({
+          "right_answer": false,
+          "title": content.title,
+          "content": content.content,
+        });
+      }
       this.setData({
-        "right_answer": false,
-        "title": content.title,
-        "content": content.content,
+        "content_text":content.content
+      });
+    } catch (e) {
+      wx.showModal({
+        title: "错误",
+        content: "解析内容出错",
       });
     }
-    this.setData({
-      "content_text":content.content
-    });
   },
 
   goNextQuestion: function() {

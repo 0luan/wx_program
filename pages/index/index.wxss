@@ -15,7 +15,7 @@
   padding-top: 10px;
   padding-bottom: 10px;
   text-align: center;
-  font-size: 32px;
+  font-size: 28px;
   font-family: zzzz;
 }
 
@@ -27,6 +27,7 @@
 
 #item-list-title {
   height: 32px;
+  line-height: 32px;
   font-size: 18px;
 }
 

@@ -3,7 +3,7 @@
   <block wx:if="{{category_id==0}}">
   <view id="category-list">
     <view id="category-id-container">
-      <view class="category-item" wx:for="{{category_list}}" data-category-id="{{item.id}}" catchtap="onCategorySelect">
+      <view class="category-item" wx:for="{{category_list}}" data-category-id="{{item.category_id}}" data-title="{{item.title}}" catchtap="onCategorySelect">
         <text>{{item.title}}</text>
       </view>
     </view>

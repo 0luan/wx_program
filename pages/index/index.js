@@ -77,7 +77,11 @@ Page({
    * 页面相关事件处理函数--监听用户下拉动作
    */
   onPullDownRefresh: function () {
-
+    if (this.data.category_id == 0) {
+      this.loadCategoryList();
+    } else {
+      this.loadCategory(this.data.category_id);
+    }
   },
 
   /**
@@ -96,39 +100,48 @@ Page({
 
   loadCategoryList: function() {
     wx.request({
-      url: "http://127.0.0.1:8080/api/",
+      url: "http://39.108.150.51/api/?op=list&type=category",
       data: "",
       method: "GET",
       dataType: "json",
-      complete(res) {
+      complete: (res) => {
+        wx.stopPullDownRefresh();
         console.log(res);
         if (res.statusCode == 200) {
-          let data = {};
+          let data = res.data;
           if (data.state) {
             this.setData({
               category_list: data.category_list,
             });
           } else {
-
+            wx.showModal({
+              title: "错误",
+              content: "获取目录列表失败，请重试",
+            });
           }
         } else {
-
+          wx.showModal({
+            title: "错误",
+            content: "获取目录列表失败，请重试",
+          });
         }
       }
     });
   },
   loadCategory: function(id) {
     wx.request({
-      url: "http://127.0.0.1:8080/api/",
+      url: "http://39.108.150.51/api/?op=list&type=question&category_id=" + id,
       data: "",
       method: "GET",
       dataType: "json",
-      complete(res) {
+      complete: (res) => {
+        wx.stopPullDownRefresh();
         console.log(res);
         if (res.statusCode == 200) {
-          let data = {};
+          let data = res.data;
           if (data.state) {
-            let done_question_id = getApp().getProgressInfo(id).slice(0);
+            let done_question_id = getApp().getProgressInfo(id);
+            done_question_id = done_question_id ? done_question_id.slice(0) : [];
             let result_list = [];
             let progress_info = "已完成(" + done_question_id.length + "/" + data.question_list.length + ")";
             for (var i = 0; i < data.question_list.length; ++i) {
@@ -142,14 +155,19 @@ Page({
             }
             getApp().setCurCategory(id, result_list);
             this.setData({
-              item_list_title: data.title,
               question_list: result_list
             });
           } else {
-
+            wx.showModal({
+              title: "错误",
+              content: "获取目录列表失败，请重试",
+            });
           }
         } else {
-
+          wx.showModal({
+            title: "错误",
+            content: "获取目录列表失败，请重试",
+          });
         }
       }
     });
@@ -187,9 +205,12 @@ Page({
 
   onCategorySelect: function(e) {
     let id = e.currentTarget.dataset.categoryId;
+    let title = e.currentTarget.dataset.title;
     this.setData({
       category_id: id,
+      item_list_title: title,
     })
+    this.loadCategory(id);
   },
 
   onQuestionSelect: function(e) {

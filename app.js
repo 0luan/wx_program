@@ -71,9 +71,9 @@ App({
     if (this.globalData.progress_info[category_id].indexOf(id) == -1) {
       this.globalData.progress_info[category_id].push(id);
       if (this.globalData.question_listener) {
-        console.log('app.onQuestionDone notify', category_id, id);
         this.globalData.question_listener.onQuestionDone(category_id, index, id);
       }
+      console.log('onquestionDone, progress_info to storage:', this.globalData.progress_info)
       wx.setStorage({
         key:"progress_info",
         data: this.globalData.progress_info,
@@ -83,17 +83,17 @@ App({
   getNextQuestion: function(category_id, index) {
     if (this.globalData.cur_category_id != category_id
       || !this.globalData.cur_category_list 
-      || ++index >= this.globalData.cur_cagegory_list.length)
+      || ++index >= this.globalData.cur_category_list.length)
       return {
         "category_id": category_id,
         "index": -1,
-        "id": -1,
+        "next_question_id": -1,
       }
     else 
       return {
         "category_id": category_id,
         "index": index,
-        "id": this.globalData.cur_category_list[index],     
+        "next_question_id": this.globalData.cur_category_list[index].id,     
       }
   }
 

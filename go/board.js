@@ -31,7 +31,7 @@ export function Board() {
       else
         unit_size = width / (LINE_COUNT + 1);
       stone_size = (unit_size - 4) / 2;
-      console.log("unit_size:", unit_size, " stone_size:", stone_size);
+      //console.log("unit_size:", unit_size, " stone_size:", stone_size);
       canvas_id = id;
 
       ctx = wx.createCanvasContext(id);
@@ -62,7 +62,7 @@ export function Board() {
 
       if (clip_pos_start > 0) {
         for (let i = 1; i != LINE_COUNT - clip_pos_start + 1; ++i) {
-          console.log('draw line');
+          //console.log('draw line');
           ctx.moveTo((i+1) * unit_size, unit_size);
           ctx.lineTo((i+1) * unit_size, width - unit_size);
           ctx.stroke();
@@ -73,7 +73,7 @@ export function Board() {
         }
       } else {
         for (let i = 1; i != LINE_COUNT; ++i) {
-          console.log('draw line');
+          //console.log('draw line');
           ctx.moveTo((i + 1) * unit_size, unit_size);
           ctx.lineTo((i + 1) * unit_size, width - unit_size);
           ctx.stroke();
@@ -290,7 +290,7 @@ export function Board() {
       if (pt.y >= LINE_COUNT) {
         --pt.y;
       }
-      console.log(pt);
+      //console.log(pt);
       return pt;
     },
 
@@ -315,7 +315,7 @@ export function Board() {
       if (selected_x != -1 && selected_y != -1) {
         var rect_x = (selected_x + 0.5) * unit_size;
         var rect_y = (selected_y + 0.5) * unit_size;
-        console.log('clear rect ', rect_x, rect_y);
+        //console.log('clear rect ', rect_x, rect_y);
         ctx.clearRect(rect_x, rect_y, unit_size, unit_size);
         if (node_data[selected_x][selected_y]) {
           this.addStone(selected_x, selected_y, node_data[selected_x][selected_y].color, node_data[selected_x][selected_y].note);
@@ -397,11 +397,11 @@ export function Board() {
         if (x < clip_pos_start || y < clip_pos_start)
           return;
       }
-      console.log('addStone', x, y, color);
+      //console.log('addStone', x, y, color);
       selected_x = -1;
       selected_y = -1;
       node_data[x][y] = { "x":x, "y":y, "color": color, "note": note };
-      console.log(x, y);
+      //console.log(x, y);
       if (clip_pos_start > 0) { 
         x = (x - clip_pos_start + 2) * unit_size;
         y = (y - clip_pos_start + 2) * unit_size;
@@ -433,7 +433,7 @@ export function Board() {
     },
 
     removeStone: function(x, y, refresh = true) {
-      console.log('board.removeStone', x, y);
+      //console.log('board.removeStone', x, y);
       let node = node_data[x][y];
       let pos_x, pos_y;
       if (clip_pos_start > 0) {

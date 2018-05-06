@@ -39,6 +39,12 @@ export function GoController() {
     BATTLE_MODE: BATTLE_MODE,
     TRY_MODE: TRY_MODE,
     init: function(board_clip_pos, init, next_move, answer, predict, callback) {
+      undo_info = {
+        moves_stack: [],
+        deads_stack: [],
+        predict_stack: [],
+      };
+
       init_info.board_clip_pos = board_clip_pos;
       init_info.init_stones = init;
       init_info.next_move_color = next_move;
@@ -101,7 +107,7 @@ export function GoController() {
           if (!cur_predict_tree) return;
 
           let index = String.fromCharCode(65+x) + (y+1);
-          console.log(index, cur_predict_tree);
+          //console.log(index, cur_predict_tree);
           if (cur_predict_tree[index]) {
             undo_info.predict_stack.push(cur_predict_tree);
             

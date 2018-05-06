@@ -4,7 +4,7 @@ import { GoJudger } from "../../go/go_judger.js"
 
 var controller = GoController();
 
-var content = '{"title":"title","content":"content","board":{"info":{"clip_pos":9},"answer":[{"x":17,"y":17,"text":""},{"x":16,"y":16,"text":""},{"x":15,"y":18,"text":""},{"x":16,"y":18,"text":""},{"x":14,"y":18,"text":""},{"x":16,"y":17,"text":""},{"x":17,"y":14,"text":""}],"stone":{"black":[{"x":15,"y":17},{"x":15,"y":16},{"x":16,"y":15},{"x":16,"y":14}],"white":[{"x":16,"y":13},{"x":16,"y":11},{"x":15,"y":13},{"x":15,"y":15},{"x":14,"y":15},{"x":14,"y":16},{"x":14,"y":17},{"x":11,"y":16}]},"predict":{"R18":[{"response":{"x":16,"y":16,"text":""},"P19":[{"response":{"x":16,"y":18,"text":""},"O19":[{"response":{"x":16,"y":17,"text":""},"R15":{"correct":true}}]}]},{"response":{"x":16,"y":17,"text":""},"R19":[{"response":{"x":16,"y":18,"text":""},"R17":[{"response":{"x":16,"y":16,"text":""},"R15":[{"response":{"x":17,"y":15,"text":""},"R14":{"correct":true}}]}]}]}],"R17":[{"response":{"x":17,"y":17,"text":""},"S18":[{"response":{"x":16,"y":16,"text":"","correct":false}}]}]}}}';
+var cached_content;
 var cur_page_index = 0;
 
 Page({
@@ -21,19 +21,21 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    let id = options.id;
-    let category_id = options.category_id;
-    let index = options.index;
+    let id = parseInt(options.id);
+    let category_id = parseInt(options.category_id);
+    let index = parseInt(options.index);
 
     this.setData({
       "id": id,
       "index": index,
       "category_id": category_id,
-    })
-    this.loadContent(content);
+    });
+    this.fetchData(id);
   },
 
   fetchData: function(id) {
+    cached_content = {};
+    console.log('fetchData, id:', id);
     wx.request({
       url: "http://39.108.150.51/api/?op=get&id=" + id,
       data: "",
@@ -138,12 +140,13 @@ Page({
   },
 
   loadContent: function(content) {
+    cached_content = content;
     try {
       var content_type = content.type;
       var board_info = content.board;
       if (board_info) {
         console.log(board_info.predict);
-        controller.init(board_info.info.board_clip_pos || 9, 
+        controller.init(board_info.info.clip_pos || 9, 
           board_info.stone, 
           board_info.info.next_move_color, 
           board_info.answer, board_info.predict, 
@@ -171,11 +174,19 @@ Page({
   },
 
   goNextQuestion: function() {
-    let obj = getApp().getNextQuestion(category_id, index);
+    let obj = getApp().getNextQuestion(this.data.category_id, this.data.index);
     if (obj && obj.next_question_id != -1) {
-
+      this.setData({
+        "id": obj.next_question_id,
+        "index": obj.index,
+        "category_id": obj.category_id,
+      });
+      this.fetchData(obj.next_question_id);
     } else {
-
+      wx.showModal({
+        title: "提示",
+        content: "这已经是最后一题了！",
+      });
     }
   },
 
@@ -212,7 +223,7 @@ Page({
   },
   onHideAnswer: function () {
     controller.setAnswerMode(false);
-    this.loadContent(content);
+    this.loadContent(cached_content);
     this.setData({
       show_navigate_panel: false,
     });

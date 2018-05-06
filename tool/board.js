@@ -437,12 +437,12 @@ function Board() {
           x = (x + 1) * unit_size;
           y = (y + 1) * unit_size;
         }
-        ctx.setLineWidth(1);
-        ctx.setStrokeStyle('black');
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'black';
         ctx.beginPath();
         ctx.arc(x, y, 4, 0, 2 * Math.PI);
         ctx.stroke();
-        ctx.setFillStyle('black');
+        ctx.fillStyle = 'black';
         ctx.fill();
 
       }

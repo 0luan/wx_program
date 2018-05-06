@@ -18,12 +18,14 @@
   <view id="item-list-title">
   {{item_list_title}}
   </view>
-  <view id="item-list">
-    <view class="question-item" wx:for="{{question_list}}" catchtap="onQuestionSelect" data-question-index="{{index}}" data-question-id="{{item.id}}">
-      <image wx:if="{{item.done}}" class="question-done" mode="aspectFit" src="../images/right.png" />
-      <div class="question-thumb" style="background-image:url(data:image/png;{{item.img}}" />
-    </view>
-  </view> 
+  
+    <view id="item-list">
+      <view class="question-item" wx:for="{{question_list}}" catchtap="onQuestionSelect" data-question-index="{{index}}" data-question-id="{{item.id}}">
+        <image wx:if="{{item.done}}" class="question-done" mode="aspectFit" src="../images/right.png" />
+        <div class="question-thumb" style="background-image:url(data:image/png;{{item.thumb}}" />
+      </view>
+    </view> 
+
   <view id="item-bottom-view">
     <view id="navigateBack" catchtap="onReturnBtn">返回</view>
     <view id="progress-info">{{progress_info}}</view>

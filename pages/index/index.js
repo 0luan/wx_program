@@ -149,13 +149,14 @@ Page({
               let index = done_question_id.indexOf(item.id);
               if (index != -1) {
                 item.done = true;
-                data_question_id.splice(index, 1);
+                done_question_id.splice(index, 1);
               }
               result_list.push(item);
             }
             getApp().setCurCategory(id, result_list);
             this.setData({
-              question_list: result_list
+              question_list: result_list,
+              progress_info: progress_info,
             });
           } else {
             wx.showModal({
@@ -191,9 +192,9 @@ Page({
     console.log('onQuestionDone', category_id, index, id);
     if (this.data.category_id != category_id)
       return;
-    let done_question_id = getApp().getProgressInfo(id);
-    let result_list = getApp().getCurCategoryList();
-    let progress_info = "已完成(" + done_question_id.length + "/" + data.question_list.length + ")";
+    let done_question_id = getApp().getProgressInfo(id) || [];
+    //let result_list = getApp().getCurCategoryList();
+    let progress_info = "已完成(" + done_question_id.length + "/" + this.data.question_list.length + ")";
     let key = "question_list[" + (index) +"]";
     let obj = this.data.question_list[index];
     obj.done = true;

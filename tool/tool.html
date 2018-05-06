@@ -62,7 +62,7 @@
 	window.onload=function() {
 		$.ajax({ 
 	    	type : "GET", //提交方式 
-	    	url : "http://192.168.0.231:8080/api?op=list&type=category",//路径 
+	    	url : "http://39.108.150.51:8080/api?op=list&type=category",//路径 
 	    	success : function(res) {//返回数据根据结果进行相应的处理 
 	    		for (let i = 0; i != res.category_list.length; ++i) {
 	    			$('#category_id').append(`<option value=${res.category_list[i].category_id}>${res.category_list[i].title}</option>`);
@@ -110,7 +110,7 @@
 			if (is_input) {
 				if (!cur[pos]) {
 					if (i == (cache.length - 1) && is_correct)
-						cur[pos] = {correct:true};
+						cur[pos] = {correct:true, text:cache[i].text};
 					else {
 						cur[pos] = [];
 						if (is_correct)
@@ -265,7 +265,8 @@
 	
 	$('#finish').click(function() {
 		// 棋局信息
-		let category_id = $('#category_id')[0].options[$('#category_id')[0].selectedIndex].value();
+		result.title = $('#title').val();
+		let category_id = $('#category_id')[0].options[$('#category_id')[0].selectedIndex].value;
 		result.board.info.next_move_color = $('input[name="init_color_sel"]:checked').val();
 		
 		// 生成缩略图
@@ -277,13 +278,13 @@
 		for (let i = 0; i != result.board.stone.white.length; ++i) {
 			tmp.addStone(result.board.stone.white[i].x, result.board.stone.white[i].y, 0, '');
 		}
-		console.log(document.getElementById('tmp_board').toDataURL().length);
+		console.log(document.getElementById('tmp_board').toDataURL());
 		
 		// 上传数据
 		$.ajax({ 
 	    	type : "POST", //提交方式 
-	    	url : "http://192.168.0.231:8080/api?op=add&category_id=" + category_id + "&title=title",//路径 
-	    	data : "content=" + JSON.stringify(result) + "&thumb=" + document.getElementById('tmp_board').toDataURL().substr("data:image/png;".length),
+	    	url : "http://39.108.150.51:8080/api?op=add&category_id=" + category_id + "&title=" + result.title,//路径 
+	    	data : "content=" + JSON.stringify(result) + "&thumb=" + encodeURIComponent(document.getElementById('tmp_board').toDataURL().substr("data:image/png;".length)),
 	    	dataType: "POST",
 	    	success : function(res) {//返回数据根据结果进行相应的处理 
 	    		console.log(res);

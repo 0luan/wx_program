@@ -61,22 +61,22 @@ function Board() {
 
       if (clip_pos_start > 0) {
         for (let i = 1; i != LINE_COUNT - clip_pos_start + 1; ++i) {
-          ctx.moveTo((i+1) * unit_size, unit_size);
-          ctx.lineTo((i+1) * unit_size, width - unit_size);
+          ctx.moveTo(parseInt((i+1) * unit_size)+0.5, parseInt(unit_size) + 0.5);
+          ctx.lineTo(parseInt((i+1) * unit_size)+0.5, parseInt(width - unit_size) + 0.5);
           ctx.stroke();
 
-          ctx.moveTo(unit_size, (i+1)*unit_size);
-          ctx.lineTo(width-unit_size, (i+1)*unit_size);
+          ctx.moveTo(parseInt(unit_size) + 0.5, parseInt((i+1)*unit_size) + 0.5);
+          ctx.lineTo(parseInt(width-unit_size) + 0.5, parseInt((i+1)*unit_size) + 0.5);
           ctx.stroke();
         }
       } else {
         for (let i = 1; i != LINE_COUNT; ++i) {
-          ctx.moveTo((i + 1) * unit_size, unit_size);
-          ctx.lineTo((i + 1) * unit_size, width - unit_size);
+          ctx.moveTo(parseInt((i + 1) * unit_size + 0.5), parseInt(unit_size + 0.5));
+          ctx.lineTo(parseInt((i + 1) * unit_size + 0.5), parseInt(width - unit_size + 0.5));
           ctx.stroke();
 
-          ctx.moveTo(unit_size, (i + 1) * unit_size);
-          ctx.lineTo(width - unit_size, (i + 1) * unit_size);
+          ctx.moveTo(parseInt(unit_size + 0.5), parseInt((i + 1) * unit_size + 0.5));
+          ctx.lineTo(parseInt(width - unit_size + 0.5), parseInt((i + 1) * unit_size + 0.5));
           ctx.stroke();
         }
       }
@@ -85,8 +85,8 @@ function Board() {
         let x = star_pos[i].x, y = star_pos[i].y;
         if (x < clip_pos_start || y < clip_pos_start) continue;
         if (clip_pos_start > 0) {
-          x = (x - clip_pos_start + 2) * unit_size;
-          y = (y - clip_pos_start + 2) * unit_size;
+          x = (x - clip_pos_start + 2) * unit_size + 0.5;
+          y = (y - clip_pos_start + 2) * unit_size + 0.5;
         } else {
           x = (x + 1) * unit_size;
           y = (y + 1) * unit_size;

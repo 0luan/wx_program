@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+	<script src="jquery-3.3.1.min.js"></script>
+	<script src="go_judger.js"></script>
+	<style type="text/css">
+	* { margin: 0; padding: 0; }
+	.selected { background-color: #ccc; }
+	</style>
+</head>
+<body>
+	<div>
+		<div style="width: 800px; height: 800px; background: #c88f03" />
+		<canvas id="board" width="800px" height="800px" />
+	</div>
+	<div style="position: absolute; left: 800px; top: 0;">
+		<p>
+		标题:<input type="text" id="title" />
+		<input type="radio" name="init_color_sel" value="1" checked="checked"/>黑先
+		<input type="radio" name="init_color_sel" value="0" />白先
+		<select id="category_id"></select><button id="big_board">大棋盘</button>
+		</p>
+		
+
+		<p>
+		<input type="radio" name="mode_sel" value="0" checked="checked"/>录入棋子
+		<input type="radio" name="mode_sel" value="2" />录入变化
+		</p>
+		<p>	
+		<input type="radio" name="color_sel" value="1" checked="checked"/>黑棋
+		<input type="radio" name="color_sel" value="0" />白棋
+		</p>
+		
+		<div>
+			<ol id="cache_predict"></ol>
+			<button id="add_correct" type="button">添加为正确答案</button>
+			<button id="add_error" type="button">添加为错误答案</button>
+			<button id="clear_cache" type="button">清空</button>
+		</div>
+		
+		
+		解说：<textarea id="text"></textarea><button id="set_text" type="button">添加解说</button>
+
+		
+		<button id="finish" type="button">生成结果</button>
+		
+		<div id="result">
+
+		</div>
+		
+		<canvas id="tmp_board" width="96px" height="96px" />
+		
+	</div>
+
+	
+<script src="board.js"></script>
+<script>
+	var board_clip = 9;
+	var result = {};
+	var all;
+	var index = 5;
+
+	work = function(id, index) {
+
+	}
+
+	window.onload=function() {
+		$.ajax({ 
+	    	type : "GET", //提交方式 
+	    	url : "http://192.168.0.231:8080/api?op=list&type=question&category_id=3",//路径 
+	    	success : function(res) {//返回数据根据结果进行相应的处理 
+	    		all = res.question_list;
+	    		//for(let i = 0; i != res.question_list.length; ++i) {
+		    	$.ajax({ 
+			    	type : "GET", //提交方式 
+			    	url : "http://192.168.0.231:8080/api?op=get&id=" + res.question_list[index].id,//路径 
+			    	success : function(res) {//返回数据根据结果进行相应的处理 
+			    		res = JSON.parse(res);
+			    		console.log(res);
+			    		// 生成缩略图
+						var tmp = Board();
+						tmp.init("tmp_board", 96, res.board.info.clip_pos);
+						for (let j = 0; j != res.board.stone.black.length; ++j) {
+							tmp.addStone(res.board.stone.black[j].x, res.board.stone.black[j].y, 1, '');
+						}
+						for (let k = 0; k != res.board.stone.white.length; ++k) {
+							tmp.addStone(res.board.stone.white[k].x, res.board.stone.white[k].y, 0, '');
+						}
+						console.log(document.getElementById('tmp_board').toDataURL());
+						
+						// 上传数据
+						$.ajax({ 
+					    	type : "POST", //提交方式 
+					    	url : "http://192.168.0.231:8080/api?op=edit&id=" + all[index].id,//路径 
+					    	data : "thumb=" + encodeURIComponent(document.getElementById('tmp_board').toDataURL().substr("data:image/png;".length)),
+					    	dataType: "POST",
+					    	success : function(res) {//返回数据根据结果进行相应的处理 
+					    		console.log(res);
+					     	}
+					    }); 
+			     	}
+			    }); 
+
+	    		//}
+	     	}
+	    }); 
+
+		result.title = "title";
+		result.content = "content";
+		result.board = {};
+		result.board.info = {clip_pos: board_clip};
+		result.board.answer = [];
+		result.board.stone = {black:[], white:[]};
+		result.board.predict = {};
+		
+		cache = [];
+	
+		board = Board();
+		board.init("board", 800, board_clip);
+		judger = GoJudger();
+		judger.init();
+	}
+	xyToStr = function(x, y) {
+		return String.fromCharCode(65+x) + (y+1);
+	}
+	
+	addStone = function(x, y, color, note) {
+	  let deads = judger.addStone(x, y, color);
+      if (deads === false) {
+        console.log('add stone error');
+        return false;
+      }
+      board.addStone(x, y, color, note);
+      for (let i = 0; i != deads.length; ++i)
+        board.removeStone(deads[i].x, deads[i].y);
+	  return true;
+	}
+	
+	restoreBoard = function() {
+		board = Board();
+		board.init("board");
+		judger = GoJudger();
+		judger.init();
+		
+		for (let i = 0; i != result.board.stone.black.length; ++i) {
+			addStone(result.board.stone.black[i].x, result.board.stone.black[i].y, 1, '');
+		}
+		for (let i = 0; i != result.board.stone.white.length; ++i) {
+			addStone(result.board.stone.white[i].x, result.board.stone.white[i].y, 0, '');
+		}
+	}
+	$('#big_board').click(function() {
+		board_clip = 7;
+		window.onload();
+	});
+
+	
+	$('#finish').click(function() {
+		// 棋局信息
+		result.title = $('#title').val();
+		let category_id = $('#category_id')[0].options[$('#category_id')[0].selectedIndex].value;
+		result.board.info.next_move_color = $('input[name="init_color_sel"]:checked').val();
+		
+		// 生成缩略图
+		var tmp = Board();
+		tmp.init("tmp_board", 96, board_clip);
+		for (let i = 0; i != result.board.stone.black.length; ++i) {
+			tmp.addStone(result.board.stone.black[i].x, result.board.stone.black[i].y, 1, '');
+		}
+		for (let i = 0; i != result.board.stone.white.length; ++i) {
+			tmp.addStone(result.board.stone.white[i].x, result.board.stone.white[i].y, 0, '');
+		}
+		console.log(document.getElementById('tmp_board').toDataURL());
+		
+		// 上传数据
+		$.ajax({ 
+	    	type : "POST", //提交方式 
+	    	url : "http://39.108.150.51:8080/api?op=add&category_id=" + category_id + "&title=" + result.title,//路径 
+	    	data : "content=" + JSON.stringify(result) + "&thumb=" + encodeURIComponent(document.getElementById('tmp_board').toDataURL().substr("data:image/png;".length)),
+	    	dataType: "POST",
+	    	success : function(res) {//返回数据根据结果进行相应的处理 
+	    		console.log(res);
+	    		if (res.state) alert("添加成功");
+	    		else alert("添加失败");
+	     	}
+	    }); 
+	});
+
+</script>
+
+</body>
+</html>

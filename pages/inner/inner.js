@@ -37,7 +37,7 @@ Page({
     cached_content = {};
     console.log('fetchData, id:', id);
     wx.request({
-      url: "http://39.108.150.51/api/?op=get&id=" + id,
+      url: "https://www.0luan.top/api/?op=get&id=" + id,
       data: "",
       method: "GET",
       dataType: "json",

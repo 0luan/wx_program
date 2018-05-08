@@ -15,23 +15,20 @@ export function GoController() {
   var mode = BATTLE_MODE;
   var next_move_color = 1;
 
-  // 栈，保存显示答案时每一步的吃子，以便后退时使用
-  var dead_moves_stack = []; 
-
   var init_info = {};
 
-  var answer_moves = []; // 答案
-  var cur_answer_index = -1;
 
   var predict_moves = {}; // 预测用户点击
   var cur_predict_tree;
 
   //var try_mode_restore_storage = {};
 
+  var move_index = 1;
   var undo_info = {
     moves_stack: [],
     deads_stack: [],
     predict_stack: [],
+    note_pos_stack: [],
   };
 
   return {
@@ -43,6 +40,7 @@ export function GoController() {
         moves_stack: [],
         deads_stack: [],
         predict_stack: [],
+        note_pos_stack: [],
       };
 
       init_info.board_clip_pos = board_clip_pos;
@@ -71,8 +69,8 @@ export function GoController() {
       }
       board.draw();
 
+      move_index = 1;
       next_move_color = next_move;
-      answer_moves = answer;
       predict_moves = predict;
       cur_predict_tree = predict_moves;
       
@@ -82,7 +80,11 @@ export function GoController() {
       return board.pointToXY(x, y);
     },
 
-
+    StrToXY: function(str) {
+      let x = str.charCodeAt(0) - 65;
+      let y = parseInt(str.substr(1)) - 1;
+      return {x:x, y:y};
+    },
 
     // // 试下模式
     // enterTryMode: function() {
@@ -100,58 +102,89 @@ export function GoController() {
     // },
 
     //wx.showModal({title:'test',content:'content',showCancel:false})
-    onBoardClick: function(x, y) {
-      switch (mode) {
-        // 答题 
-        case BATTLE_MODE:
-          if (!cur_predict_tree) return;
 
-          let index = String.fromCharCode(65+x) + (y+1);
-          //console.log(index, cur_predict_tree);
-          if (cur_predict_tree[index]) {
-            undo_info.predict_stack.push(cur_predict_tree);
-            
-            {
-              this.addStone(x, y, next_move_color, "" + (undo_info.predict_stack.length*2-1));
-            }
-            if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
-
-            if (cur_predict_tree[index].correct != undefined) {
-              if (cur_predict_tree[index].correct) {
-                set_text_callback && set_text_callback(cur_predict_tree.text ? cur_predict_tree.text : "恭喜答对");
-                getCurrentPages()[getCurrentPages().length - 1].onAnswerRight(true);
-              } else {
-                set_text_callback && set_text_callback(cur_predict_tree.text ? cur_predict_tree.text : "失败，重来吧");
-              }
-              return;
-            }
-            cur_predict_tree = cur_predict_tree[index][0];
-
-            if (cur_predict_tree.response.x != undefined && cur_predict_tree.response.y != undefined)
-            {
-              this.addStone(cur_predict_tree.response.x, cur_predict_tree.response.y, next_move_color, ""+(undo_info.predict_stack.length*2));
-              
-            }
-            if (cur_predict_tree.response.correct != undefined) {
-              if (cur_predict_tree.response.correct) {
-                set_text_callback && set_text_callback(cur_predict_tree.response.text ? cur_predict_tree.response.text : "恭喜答对");
-                getCurrentPages()[getCurrentPages().length - 1].onAnswerRight(true);
-              } else {
-                set_text_callback && set_text_callback(cur_predict_tree.response.text ? cur_predict_tree.response.text : "失败，重来吧");
-              }
-            } else {
-              set_text_callback && set_text_callback(cur_predict_tree.response.text);
-            }
-            
-            if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;   
+    showAllBranches: function() {
+      if (move_index % 2) {
+        for (var key in cur_predict_tree) {
+          if (key == "correct" || key == "response") continue;
+          let tmp = this.StrToXY(key)
+          board.addText(tmp.x, tmp.y, 'A');
+        }
+      } else {
+        for (let i = 0; i != cur_predict_tree.length; ++i) {
+          if (cur_predict_tree[i].response) {
+            board.addText(cur_predict_tree[i].response.x, cur_predict_tree[i].response.y, 'B');
           }
-        break;
+        }
       }
+    },
+
+
+    onBoardClick: function(x, y) {
+      if (!cur_predict_tree) return;
+
+      if (move_index % 2) {
+        let index = String.fromCharCode(65 + x) + (y + 1);
+        if (cur_predict_tree[index]) {
+          undo_info.predict_stack.push(cur_predict_tree);
+          cur_predict_tree = cur_predict_tree[index];
+
+          this.addStone(x, y, next_move_color, "" + move_index);
+          ++move_index;
+          if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
+          if (cur_predict_tree.correct === true) {
+            set_text_callback && set_text_callback(cur_predict_tree.text ? cur_predict_tree.text : "恭喜答对");
+            getCurrentPages()[getCurrentPages().length - 1].onAnswerRight(true);
+          }
+
+          if (mode == BATTLE_MODE) {
+            let respond_index = cur_predict_tree.length;
+            respond_index = Math.floor(Math.random() * respond_index + 1) - 1;
+            cur_predict_tree = cur_predict_tree[respond_index];
+            if (cur_predict_tree.response.x != undefined && cur_predict_tree.response.y != undefined) {
+              this.addStone(cur_predict_tree.response.x, cur_predict_tree.response.y, next_move_color, "" + move_index);
+            }
+            if (cur_predict_tree.response.correct === false) {
+              set_text_callback && set_text_callback(cur_predict_tree.response.text ? cur_predict_tree.response.text : "失败，重来吧");
+            }
+            undo_info.predict_stack.push(cur_predict_tree);
+            ++move_index;
+            if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
+          } else {
+            this.showAllBranches();
+          }
+        } else {
+          return;
+        }
+      } else {
+        let find = null;
+        for (let i = 0; i != cur_predict_tree.length; ++i) {
+          if (cur_predict_tree[i].response.x == x && cur_predict_tree[i].response.y == y) {
+            find = cur_predict_tree[i];
+            break;
+          }
+        }
+        if (!find) return;
+        cur_predict_tree = find;
+        this.addStone(x, y, next_move_color, "" + move_index);
+        ++move_index;
+        if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
+        undo_info.predict_stack.push(cur_predict_tree);
+
+        if (cur_predict_tree.response.correct === false) {
+          set_text_callback && set_text_callback(cur_predict_tree.response.text ? cur_predict_tree.response.text : "失败，重来吧");
+          return;
+        }
+
+        this.showAllBranches();      
+      }
+
     },
     unDo: function() {
       if (!undo_info.moves_stack || !undo_info.deads_stack)
         return;
-
+      
+      -- move_index;
       let to_add = undo_info.deads_stack.pop();
       let to_remove = undo_info.moves_stack.pop();
       
@@ -162,8 +195,9 @@ export function GoController() {
         board.addStone(to_add[i].x, to_add[i].y, to_add[i].color);
       }
       if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
-      if (next_move_color != init_info.next_move_color) {
-        cur_predict_tree = undo_info.predict_stack.pop();
+
+      cur_predict_tree = undo_info.predict_stack.pop();
+      if (mode == BATTLE_MODE && next_move_color != init_info.next_move_color) {
         this.unDo();
       }
     },
@@ -178,74 +212,24 @@ export function GoController() {
       for (let i = 0; i != deads.length; ++i)
         board.removeStone(deads[i].x, deads[i].y);
 
-      if (mode == BATTLE_MODE) {
-        undo_info.moves_stack.push({"x":x ,"y":y, "color":color, "note":note});
-        undo_info.deads_stack.push(deads);
-      }
+      undo_info.moves_stack.push({"x":x ,"y":y, "color":color, "note":note});
+      undo_info.deads_stack.push(deads);
     },
 
-    hasAnswer: function() {
-      return answer_moves.length > 0;
-    },
     setAnswerMode: function(val) {
-      this.init(init_info.board_clip_pos, init_info.init_stones, init_info.next_move_color, answer_moves, predict_moves)
+      this.init(init_info.board_clip_pos, init_info.init_stones, init_info.next_move_color, null, predict_moves)
       mode = val? ANSWER_MODE : BATTLE_MODE;
-      cur_answer_index = -1;
       cur_predict_tree = predict_moves;
+      move_index = 1;
       undo_info = {
         moves_stack: [],
         deads_stack: [],
         predict_stack: [],
+        note_pos_stack: [],
       };
-    },
-    prevMove: function() {
-      if (mode != ANSWER_MODE) return false;
-      if (cur_answer_index < 0 || cur_answer_index >= answer_moves.length) false;
-      let deads = dead_moves_stack.pop();
-      let to_remove_move = answer_moves[cur_answer_index];
-      board.removeStone(to_remove_move.x, to_remove_move.y);
-      judger.removeStone(to_remove_move.x, to_remove_move.y);
-      for (let i = 0; i != deads.length; ++i) {
-        judger.addStone(deads[i].x, deads[i].y, deads[i].color);
-        board.addStone(deads[i].x, deads[i].y, deads[i].color, deads[i].note);
-      }
-      --cur_answer_index;
-      if (cur_answer_index >= 0)
-        if (answer_moves[cur_answer_index].text)
-          set_text_callback && set_text_callback(answer_moves[cur_answer_index].text);
-        else
-          set_text_callback && set_text_callback("");
-      if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
-      return this.hasPrevMove();
-    },
-    nextMove: function() {
-      if (mode != ANSWER_MODE) return false;
-      if (cur_answer_index == answer_moves.length-1) return false;
 
-      ++cur_answer_index;
-      if (cur_answer_index < answer_moves.length) {
-        var to_add_move = answer_moves[cur_answer_index];
-        var deads = judger.addStone(to_add_move.x, to_add_move.y, next_move_color);
-        if (deads === false) console.error('add stone error');
-        else {
-          let tmp = [];
-          board.addStone(to_add_move.x, to_add_move.y, next_move_color, ""+(cur_answer_index + 1));
-          for(let i = 0; i != deads.length; ++i) {
-            tmp.push(board.removeStone(deads[i].x, deads[i].y));
-          }
-          dead_moves_stack.push(tmp);
-          if (to_add_move.text) 
-            set_text_callback && set_text_callback(to_add_move.text);
-          else 
-            set_text_callback && set_text_callback("");
-          if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
-        }
-      } else {
-        console.log('no next move');
-      }
-      return this.hasNextMove();
+      if (val) this.showAllBranches();
     },
-    hasPrevMove: function () { return cur_answer_index >= 0 && cur_answer_index < (answer_moves.length - 1); },
-    hasNextMove: function () { return cur_answer_index <= (answer_moves - 1); },
+
   }
 }

@@ -100,7 +100,7 @@ Page({
 
   loadCategoryList: function() {
     wx.request({
-      url: "http://39.108.150.51/api/?op=list&type=category",
+      url: "https://www.0luan.top/api/?op=list&type=category",
       data: "",
       method: "GET",
       dataType: "json",
@@ -130,7 +130,7 @@ Page({
   },
   loadCategory: function(id) {
     wx.request({
-      url: "http://39.108.150.51/api/?op=list&type=question&category_id=" + id,
+      url: "https://www.0luan.top/api/?op=list&type=question&category_id=" + id,
       data: "",
       method: "GET",
       dataType: "json",
@@ -185,6 +185,7 @@ Page({
       wx.navigateTo({
         url: '../../pages/inner/inner?category_id=' + this.data.category_id + '&id=' + this.data.question_list[i].id + '&index=' + i,
       })
+      break;
     }
   },
 

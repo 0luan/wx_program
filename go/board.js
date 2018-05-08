@@ -449,20 +449,20 @@ export function Board() {
       ctx.setLineWidth(1);
       ctx.setStrokeStyle('black');
       if (clip_pos_start > 0) {
-        ctx.moveTo(pos_x, pos_y + 0.5 * unit_size);
-        ctx.lineTo(x == 18 ? pos_x + 0.5 * unit_size : pos_x + unit_size, pos_y + 0.5 * unit_size);
+        ctx.moveTo(parseInt(pos_x) + 0.5, parseInt(pos_y + 0.5 * unit_size) + 0.5);
+        ctx.lineTo(x == 18 ? parseInt(pos_x + 0.5 * unit_size) + 0.5 : parseInt(pos_x + unit_size) + 0.5, parseInt(pos_y + 0.5 * unit_size) + 0.5);
         ctx.stroke();
 
-        ctx.moveTo(pos_x + 0.5 * unit_size, pos_y);
-        ctx.lineTo(pos_x + 0.5 * unit_size, y == 18 ? pos_y + 0.5 * unit_size : pos_y + unit_size);
+        ctx.moveTo(parseInt(pos_x + 0.5 * unit_size) + 0.5, parseInt(pos_y) + 0.5);
+        ctx.lineTo(parseInt(pos_x + 0.5 * unit_size) + 0.5, y == 18 ? parseInt(pos_y + 0.5 * unit_size) + 0.5 : parseInt(pos_y + unit_size) + 0.5);
         ctx.stroke();
       } else {
-        ctx.moveTo(x==0 ? pos_x + 0.5 * unit_size : pos_x, pos_y + 0.5 * unit_size);
-        ctx.lineTo(x==18 ? pos_x + 0.5 * unit_size : pos_x + unit_size, pos_y + 0.5 * unit_size);
+        ctx.moveTo(x == 0 ? parseInt(pos_x + 0.5 * unit_size) + 0.5 : parseInt(pos_x) + 0.5, parseInt(pos_y + 0.5 * unit_size) + 0.5);
+        ctx.lineTo(x == 18 ? parseInt(pos_x + 0.5 * unit_size) + 0.5 : parseInt(pos_x + unit_size) + 0.5, parseInt(pos_y + 0.5 * unit_size) + 0.5);
         ctx.stroke();
 
-        ctx.moveTo(pos_x + 0.5 * unit_size, y==0 ? pos_y + 0.5 * unit_size : pos_y);
-        ctx.lineTo(pos_x + 0.5 * unit_size, y==18 ? pos_y + 0.5 * unit_size : pos_y + unit_size);
+        ctx.moveTo(parseInt(pos_x + 0.5 * unit_size) + 0.5, y == 0 ? parseInt(pos_y + 0.5 * unit_size) + 0.5 : parseInt(pos_y) + 0.5);
+        ctx.lineTo(parseInt(pos_x + 0.5 * unit_size) + 0.5, y == 18 ? parseInt(pos_y + 0.5 * unit_size) + 0.5 : parseInt(pos_y + unit_size) + 0.5);
         ctx.stroke();
       }
 
@@ -526,29 +526,61 @@ export function Board() {
       }
     },
 
-    removeText: function(x, y) {
+    removeText: function(x, y, refresh = true) {
+      //console.log('board.removeStone', x, y);
       let node = node_data[x][y];
+      node_data[x][y] = null;
+      let pos_x, pos_y;
       if (clip_pos_start > 0) {
-        x = (x - clip_pos_start + 1.5) * unit_size;
-        y = (y - clip_pos_start + 1.5) * unit_size;
+        pos_x = (x - clip_pos_start + 1.5) * unit_size;
+        pos_y = (y - clip_pos_start + 1.5) * unit_size;
       } else {
-        x = (x + 0.5) * unit_size;
-        y = (y + 0.5) * unit_size;
+        pos_x = (x + 0.5) * unit_size;
+        pos_y = (y + 0.5) * unit_size;
       }
-      ctx.setFillStyle('white');
-      ctx.clearRect(x, y, unit_size, unit_size);
 
+      ctx.setFillStyle('white');
+      ctx.clearRect(pos_x, pos_y, unit_size, unit_size);
       ctx.setLineWidth(1);
       ctx.setStrokeStyle('black');
-      ctx.moveTo(x, y + 0.5 * unit_size);
-      ctx.lineTo(x + unit_size, y + 0.5 * unit_size);
-      ctx.stroke();
+      if (clip_pos_start > 0) {
+        ctx.moveTo(parseInt(pos_x) + 0.5, parseInt(pos_y + 0.5 * unit_size) + 0.5);
+        ctx.lineTo(x == 18 ? parseInt(pos_x + 0.5 * unit_size) + 0.5 : parseInt(pos_x + unit_size) + 0.5, parseInt(pos_y + 0.5 * unit_size) + 0.5);
+        ctx.stroke();
 
-      ctx.moveTo(x + 0.5 * unit_size, y);
-      ctx.lineTo(x + 0.5 * unit_size, y + unit_size);
-      ctx.stroke();
-      ctx.draw(true);
-      node_data[x][y] = null;
+        ctx.moveTo(parseInt(pos_x + 0.5 * unit_size) + 0.5, parseInt(pos_y) + 0.5);
+        ctx.lineTo(parseInt(pos_x + 0.5 * unit_size) + 0.5, y == 18 ? parseInt(pos_y + 0.5 * unit_size) + 0.5 : parseInt(pos_y + unit_size) + 0.5);
+        ctx.stroke();
+      } else {
+        ctx.moveTo(x == 0 ? parseInt(pos_x + 0.5 * unit_size) + 0.5 : parseInt(pos_x) + 0.5, parseInt(pos_y + 0.5 * unit_size) + 0.5);
+        ctx.lineTo(x == 18 ? parseInt(pos_x + 0.5 * unit_size) + 0.5 : parseInt(pos_x + unit_size) + 0.5, parseInt(pos_y + 0.5 * unit_size) + 0.5);
+        ctx.stroke();
+
+        ctx.moveTo(parseInt(pos_x + 0.5 * unit_size) + 0.5, y == 0 ? parseInt(pos_y + 0.5 * unit_size) + 0.5 : parseInt(pos_y) + 0.5);
+        ctx.lineTo(parseInt(pos_x + 0.5 * unit_size) + 0.5, y == 18 ? parseInt(pos_y + 0.5 * unit_size) + 0.5 : parseInt(pos_y + unit_size) + 0.5);
+        ctx.stroke();
+      }
+
+      for (let i = 0; i != star_pos.length; ++i) {
+        if (x != star_pos[i].x || y != star_pos[i].y) continue;
+        if (clip_pos_start > 0) {
+          x = (x - clip_pos_start + 2) * unit_size;
+          y = (y - clip_pos_start + 2) * unit_size;
+        } else {
+          x = (x + 1) * unit_size;
+          y = (y + 1) * unit_size;
+        }
+        ctx.setLineWidth(1);
+        ctx.setStrokeStyle('black');
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.setFillStyle('black');
+        ctx.fill();
+      }
+
+      if (refresh)
+        ctx.draw(true);
       return node;
     },
 

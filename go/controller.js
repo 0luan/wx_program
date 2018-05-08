@@ -104,17 +104,33 @@ export function GoController() {
     //wx.showModal({title:'test',content:'content',showCancel:false})
 
     showAllBranches: function() {
+      let branches = [];
       if (move_index % 2) {
         for (var key in cur_predict_tree) {
           if (key == "correct" || key == "response") continue;
           let tmp = this.StrToXY(key)
           board.addText(tmp.x, tmp.y, 'A');
+          branches.push({x:tmp.x, y:tmp.y});
         }
       } else {
         for (let i = 0; i != cur_predict_tree.length; ++i) {
           if (cur_predict_tree[i].response) {
             board.addText(cur_predict_tree[i].response.x, cur_predict_tree[i].response.y, 'B');
+            branches.push({ x: cur_predict_tree[i].response.x, y: cur_predict_tree[i].response.y });
           }
+        }
+      }
+      undo_info.note_pos_stack.push(branches);
+    },
+    removeBranchInfo: function(clear = false) {
+      if (undo_info.note_pos_stack.length) {
+        let to_remove;
+        if (clear)
+          to_remove = undo_info.note_pos_stack.pop();
+        else
+          to_remove = undo_info.note_pos_stack[undo_info.note_pos_stack.length - 1];
+        for (let i = 0; i != to_remove.length; ++i) {
+          board.removeText(to_remove[i].x, to_remove[i].y);
         }
       }
     },
@@ -128,13 +144,16 @@ export function GoController() {
         if (cur_predict_tree[index]) {
           undo_info.predict_stack.push(cur_predict_tree);
           cur_predict_tree = cur_predict_tree[index];
-
+          this.removeBranchInfo();
           this.addStone(x, y, next_move_color, "" + move_index);
           ++move_index;
           if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
           if (cur_predict_tree.correct === true) {
             set_text_callback && set_text_callback(cur_predict_tree.text ? cur_predict_tree.text : "恭喜答对");
-            getCurrentPages()[getCurrentPages().length - 1].onAnswerRight(true);
+            if (mode == BATTLE_MODE)
+              getCurrentPages()[getCurrentPages().length - 1].onAnswerRight(true);
+            undo_info.note_pos_stack.push([]);
+            return;
           }
 
           if (mode == BATTLE_MODE) {
@@ -165,11 +184,12 @@ export function GoController() {
           }
         }
         if (!find) return;
+        undo_info.predict_stack.push(cur_predict_tree);
         cur_predict_tree = find;
+        this.removeBranchInfo();
         this.addStone(x, y, next_move_color, "" + move_index);
         ++move_index;
         if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
-        undo_info.predict_stack.push(cur_predict_tree);
 
         if (cur_predict_tree.response.correct === false) {
           set_text_callback && set_text_callback(cur_predict_tree.response.text ? cur_predict_tree.response.text : "失败，重来吧");
@@ -181,13 +201,13 @@ export function GoController() {
 
     },
     unDo: function() {
-      if (!undo_info.moves_stack || !undo_info.deads_stack)
+      if (undo_info.moves_stack.length == 0 || undo_info.deads_stack.length == 0)
         return;
-      
-      -- move_index;
+      console.log(undo_info);
+      --move_index;
       let to_add = undo_info.deads_stack.pop();
       let to_remove = undo_info.moves_stack.pop();
-      
+            
       judger.removeStone(to_remove.x, to_remove.y);
       board.removeStone(to_remove.x, to_remove.y);
       for (let i = 0; i != to_add.length; ++i) {
@@ -196,7 +216,17 @@ export function GoController() {
       }
       if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
 
+      this.removeBranchInfo(true);
+      if (undo_info.note_pos_stack.length) {
+        let to_add = undo_info.note_pos_stack[undo_info.note_pos_stack.length - 1];
+        for (let i = 0; i != to_add.length; ++i) {
+          board.addText(to_add[i].x, to_add[i].y, 'C');
+        }
+      }
+
       cur_predict_tree = undo_info.predict_stack.pop();
+
+      console.log(undo_info);
       if (mode == BATTLE_MODE && next_move_color != init_info.next_move_color) {
         this.unDo();
       }
@@ -217,7 +247,7 @@ export function GoController() {
     },
 
     setAnswerMode: function(val) {
-      this.init(init_info.board_clip_pos, init_info.init_stones, init_info.next_move_color, null, predict_moves)
+      this.init(init_info.board_clip_pos, init_info.init_stones, init_info.next_move_color, null, predict_moves, set_text_callback);
       mode = val? ANSWER_MODE : BATTLE_MODE;
       cur_predict_tree = predict_moves;
       move_index = 1;

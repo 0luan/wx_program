@@ -32,8 +32,8 @@
     <block hidden="">
       <view class="bottom-text-btn" catchtap="onUndo">悔棋</view>
       <view class="bottom-text-btn" catchtap="onRestart">重做</view>
-      <view class="bottom-text-btn" catchtap="onShowAnswer" hidden="{{show_navigate_panel}}">答案</view>
-      <view class="bottom-text-btn" catchtap="onHideAnswer" hidden="{{!show_navigate_panel}}">X</view>
+      <view class="bottom-text-btn" catchtap="onShowAnswer" hidden="{{show_navigate_panel}}">学习</view>
+      <view class="bottom-text-btn" catchtap="onHideAnswer" hidden="{{!show_navigate_panel}}">做题</view>
       <view class="bottom-text-btn" catchtap="onShare">分享</view>
     </block>
   </view>

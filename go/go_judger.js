@@ -99,9 +99,11 @@ export function GoJudger() {
       const down_y = y + 1;
       if (checked_pos[x][y] != -1) return;
 
-      //console.log('remove block push x:', x, ' y:', y);
-      deads.push({ "x": x, "y": y, "color":color });
-      stones[x][y] = -1;
+      if (stones[x][y] != -1) {
+        //console.log('remove block push x:', x, ' y:', y);
+        deads.push({ "x": x, "y": y, "color":color });
+        stones[x][y] = -1;
+      }
       checked_pos[x][y] = 1;
 
       if (left_x >= 0 && stones[left_x][y] == color) {

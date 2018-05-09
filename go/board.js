@@ -431,67 +431,6 @@ export function Board() {
       if (refresh)
         ctx.draw(true);
     },
-
-    removeStone: function(x, y, refresh = true) {
-      //console.log('board.removeStone', x, y);
-      let node = node_data[x][y];
-      let pos_x, pos_y;
-      if (clip_pos_start > 0) {
-        pos_x = (x - clip_pos_start + 1.5) * unit_size;
-        pos_y = (y - clip_pos_start + 1.5) * unit_size;
-      } else {
-        pos_x = (x + 0.5) * unit_size;
-        pos_y = (y + 0.5) * unit_size;
-      }
-
-      ctx.setFillStyle('white');
-      ctx.clearRect(pos_x, pos_y, unit_size, unit_size);
-      ctx.setLineWidth(1);
-      ctx.setStrokeStyle('black');
-      if (clip_pos_start > 0) {
-        ctx.moveTo(parseInt(pos_x) + 0.5, parseInt(pos_y + 0.5 * unit_size) + 0.5);
-        ctx.lineTo(x == 18 ? parseInt(pos_x + 0.5 * unit_size) + 0.5 : parseInt(pos_x + unit_size) + 0.5, parseInt(pos_y + 0.5 * unit_size) + 0.5);
-        ctx.stroke();
-
-        ctx.moveTo(parseInt(pos_x + 0.5 * unit_size) + 0.5, parseInt(pos_y) + 0.5);
-        ctx.lineTo(parseInt(pos_x + 0.5 * unit_size) + 0.5, y == 18 ? parseInt(pos_y + 0.5 * unit_size) + 0.5 : parseInt(pos_y + unit_size) + 0.5);
-        ctx.stroke();
-      } else {
-        ctx.moveTo(x == 0 ? parseInt(pos_x + 0.5 * unit_size) + 0.5 : parseInt(pos_x) + 0.5, parseInt(pos_y + 0.5 * unit_size) + 0.5);
-        ctx.lineTo(x == 18 ? parseInt(pos_x + 0.5 * unit_size) + 0.5 : parseInt(pos_x + unit_size) + 0.5, parseInt(pos_y + 0.5 * unit_size) + 0.5);
-        ctx.stroke();
-
-        ctx.moveTo(parseInt(pos_x + 0.5 * unit_size) + 0.5, y == 0 ? parseInt(pos_y + 0.5 * unit_size) + 0.5 : parseInt(pos_y) + 0.5);
-        ctx.lineTo(parseInt(pos_x + 0.5 * unit_size) + 0.5, y == 18 ? parseInt(pos_y + 0.5 * unit_size) + 0.5 : parseInt(pos_y + unit_size) + 0.5);
-        ctx.stroke();
-      }
-
-
-
-      for (let i = 0; i != star_pos.length; ++i) {
-        if (x != star_pos[i].x || y != star_pos[i].y) continue;
-        if (clip_pos_start > 0) {
-          x = (x - clip_pos_start + 2) * unit_size;
-          y = (y - clip_pos_start + 2) * unit_size;
-        } else {
-          x = (x + 1) * unit_size;
-          y = (y + 1) * unit_size;
-        }
-        ctx.setLineWidth(1);
-        ctx.setStrokeStyle('black');
-        ctx.beginPath();
-        ctx.arc(x, y, 4, 0, 2 * Math.PI);
-        ctx.stroke();
-        ctx.setFillStyle('black');
-        ctx.fill();
-
-      }
-      node_data[x][y] = null;
-      if (refresh)
-        ctx.draw(true);
-      return node;
-    },
-
     addText: function(x, y, text, refresh = true) {
       selected_x = -1;
       selected_y = -1;
@@ -526,7 +465,37 @@ export function Board() {
       }
     },
 
-    removeText: function(x, y, refresh = true) {
+    setMark: function(x, y, color, refresh = true) {
+      if (clip_pos_start > 0) {
+        if (x < clip_pos_start || y < clip_pos_start)
+          return;
+      }
+      //console.log('addStone', x, y, color);
+      selected_x = -1;
+      selected_y = -1;
+      //console.log(x, y);
+      if (clip_pos_start > 0) {
+        x = (x - clip_pos_start + 2) * unit_size;
+        y = (y - clip_pos_start + 2) * unit_size;
+      } else {
+        x = (x + 1) * unit_size;
+        y = (y + 1) * unit_size;
+      }
+
+      ctx.clearRect(x - 0.5 * unit_size, y - 0.5 * unit_size, unit_size, unit_size);
+      ctx.setLineWidth(1);
+      ctx.setStrokeStyle('black');
+      ctx.beginPath();
+      ctx.arc(x, y, stone_size / 2, 0, 2 * Math.PI);
+      ctx.stroke();
+      ctx.setFillStyle(color == 1 ? 'black' : 'white');
+      ctx.fill();
+
+      if (refresh)
+        ctx.draw(true);
+    },
+
+    removeNode: function(x, y, refresh = true) {
       //console.log('board.removeStone', x, y);
       let node = node_data[x][y];
       node_data[x][y] = null;

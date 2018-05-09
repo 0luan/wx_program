@@ -109,13 +109,13 @@ export function GoController() {
         for (var key in cur_predict_tree) {
           if (key == "correct" || key == "response") continue;
           let tmp = this.StrToXY(key)
-          board.addText(tmp.x, tmp.y, 'A');
+          board.setMark(tmp.x, tmp.y, next_move_color);
           branches.push({x:tmp.x, y:tmp.y});
         }
       } else {
         for (let i = 0; i != cur_predict_tree.length; ++i) {
           if (cur_predict_tree[i].response) {
-            board.addText(cur_predict_tree[i].response.x, cur_predict_tree[i].response.y, 'B');
+            board.setMark(cur_predict_tree[i].response.x, cur_predict_tree[i].response.y, next_move_color);
             branches.push({ x: cur_predict_tree[i].response.x, y: cur_predict_tree[i].response.y });
           }
         }
@@ -130,7 +130,7 @@ export function GoController() {
         else
           to_remove = undo_info.note_pos_stack[undo_info.note_pos_stack.length - 1];
         for (let i = 0; i != to_remove.length; ++i) {
-          board.removeText(to_remove[i].x, to_remove[i].y);
+          board.removeNode(to_remove[i].x, to_remove[i].y);
         }
       }
     },
@@ -193,6 +193,7 @@ export function GoController() {
 
         if (cur_predict_tree.response.correct === false) {
           set_text_callback && set_text_callback(cur_predict_tree.response.text ? cur_predict_tree.response.text : "失败，重来吧");
+          undo_info.note_pos_stack.push([]);
           return;
         }
 
@@ -203,16 +204,18 @@ export function GoController() {
     unDo: function() {
       if (undo_info.moves_stack.length == 0 || undo_info.deads_stack.length == 0)
         return;
+      set_text_callback && set_text_callback("");
       console.log(undo_info);
       --move_index;
       let to_add = undo_info.deads_stack.pop();
       let to_remove = undo_info.moves_stack.pop();
             
       judger.removeStone(to_remove.x, to_remove.y);
-      board.removeStone(to_remove.x, to_remove.y);
+      board.removeNode(to_remove.x, to_remove.y);
       for (let i = 0; i != to_add.length; ++i) {
+        if (!to_add[i]) continue;
         judger.addStone(to_add[i].x, to_add[i].y, to_add[i].color);
-        board.addStone(to_add[i].x, to_add[i].y, to_add[i].color);
+        board.addStone(to_add[i].x, to_add[i].y, to_add[i].color, to_add[i].note);
       }
       if (next_move_color == 1) next_move_color = 0; else next_move_color = 1;
 
@@ -220,7 +223,7 @@ export function GoController() {
       if (undo_info.note_pos_stack.length) {
         let to_add = undo_info.note_pos_stack[undo_info.note_pos_stack.length - 1];
         for (let i = 0; i != to_add.length; ++i) {
-          board.addText(to_add[i].x, to_add[i].y, 'C');
+          board.setMark(to_add[i].x, to_add[i].y, next_move_color);
         }
       }
 
@@ -234,16 +237,17 @@ export function GoController() {
 
     addStone: function(x, y, color, note) {
       let deads = judger.addStone(x, y, color);
+      let tmp = [];
       if (deads === false) {
         console.log('add stone error');
         return;
       }
       board.addStone(x, y, color, note);
       for (let i = 0; i != deads.length; ++i)
-        board.removeStone(deads[i].x, deads[i].y);
+        tmp.push(board.removeNode(deads[i].x, deads[i].y));
 
       undo_info.moves_stack.push({"x":x ,"y":y, "color":color, "note":note});
-      undo_info.deads_stack.push(deads);
+      undo_info.deads_stack.push(tmp);
     },
 
     setAnswerMode: function(val) {

@@ -4,35 +4,13 @@ page {
   color: #ccc;
   font-size: 20px;
 }
-#navigate-panel-after {
-  display: block;
-  width: 0;
-  height: 0;
-  position: fixed;
-  border-width: 8px;
-  border-style: solid;
-  border-color: rgba(255, 255, 255, 0.9) transparent transparent transparent;
-  left: 70%;
-  bottom: 24px;
-  margin-left: -8px;
+#title, #text-content {
+  font-size: 18px;
 }
-#navigate-panel {
-  height: 36px;
-  width: 72px;
-  background: rgba(255, 255, 255, 0.9);
-  position: fixed;
-  bottom: 40px;
-  border-radius: 3px;
-  left: 70%;
-  margin-left: -36px;
+button[plain]{ 
+  border:0;
+  color: rgb(52, 143, 199);
 }
-#nav-prev {
-  display:inline-block;
-}
-#nav-next {
-  display:inline-block;
-}
-
 #bottom-panel {
   position: fixed;
   bottom: 0;
@@ -50,6 +28,7 @@ page {
   height: 32px;
   width: 20%;
   text-align:center;
+  line-height: 32px;
 }
 
 

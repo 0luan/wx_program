@@ -110,7 +110,11 @@ Page({
    * 用户点击右上角分享
    */
   onShareAppMessage: function () {
-
+    return {
+      title: '围棋死活宝典',
+      desc: cached_content.content,
+      path: 'pages/inner/inner?category_id=' + this.data.category_id + '&id=' + this.id + '&index=' + this.data.index,
+    }
   },
 
   updateMode: function() {

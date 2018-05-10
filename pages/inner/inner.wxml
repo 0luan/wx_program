@@ -34,7 +34,7 @@
       <view class="bottom-text-btn" catchtap="onRestart">重做</view>
       <view class="bottom-text-btn" catchtap="onShowAnswer" hidden="{{show_navigate_panel}}">学习</view>
       <view class="bottom-text-btn" catchtap="onHideAnswer" hidden="{{!show_navigate_panel}}">做题</view>
-      <view class="bottom-text-btn" catchtap="onShare">分享</view>
+      <button class="bottom-text-btn" data-name="shareBtn" open-type="share" plain="true">分享</button>
     </block>
   </view>
 </view>

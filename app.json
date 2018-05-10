@@ -8,7 +8,7 @@
     "enablePullDownRefresh": true,
     "backgroundTextStyle":"dark",
     "navigationBarBackgroundColor": "#265582",
-    "navigationBarTitleText": "WeChat",
+    "navigationBarTitleText": "围棋死活宝典",
     "navigationBarTextStyle":"black",
     "backgroundColor":"#265582"
   }
